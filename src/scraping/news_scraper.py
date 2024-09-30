@@ -13,7 +13,7 @@ class NewsScraper:
                  news_item_selector, 
                  
                  next_page_identifier,
-                 extract_item_details=None,
+                 extract_item_details,
                 filepath = '/home/starias/africa_news_api/src/staging_area/extracted_news.csv',):
         self.file= open(filepath, mode='a', newline='', encoding='utf-8')
         # Initialize the WebDriver
