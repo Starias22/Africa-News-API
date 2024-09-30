@@ -5,16 +5,16 @@ from selenium.webdriver.support import expected_conditions as EC
 import csv
 
 
-
-#title,author_name,author_url,publication_date,description,category,image_url,url,countries,content_preview
+#title,author_name,author_url,publication_date,description,category,image_url,url,countries,content_preview,source
 
 class NewsScraper:
 
-    def __init__(self, start_url, 
-                 news_item_selector, 
-                 
-                 next_page_identifier,
-                 extract_item_details,
+    def __init__(self, 
+                source,
+                start_url, 
+                news_item_selector,
+                next_page_identifier,
+                extract_item_details,
                 filepath = '/home/starias/africa_news_api/src/staging_area/extracted_news.csv',):
         self.file= open(filepath, mode='a', newline='', encoding='utf-8')
         # Initialize the WebDriver
@@ -26,6 +26,7 @@ class NewsScraper:
         self.news_item_selector=news_item_selector
         self.start_url=start_url
         self.next_page_identifier = next_page_identifier
+        self.source = source
 
 
     def get_news_items(self):
@@ -45,8 +46,9 @@ class NewsScraper:
     
     def record_row(self, row):
         # Define the CSV header
-        csv_header = ["title", "author_name", "author_url", "publication_date", "description", "category", "image_url", "url", "countries", "content_preview"]
+        csv_header = ["title", "author_name", "author_url", "publication_date", "description", "category", "image_url", "url", "countries", "content_preview", "source"]
         writer = csv.DictWriter(self.file, fieldnames=csv_header)
+        row["source"] = self.source
         # Write the news data
         writer.writerow(row)
     
@@ -58,7 +60,7 @@ class NewsScraper:
         news_items = self.get_news_items()
         for news_item in news_items:
             try:
-                news_row = self.extract_item_details(news_item)
+                news_row = self.extract_item_details(news_item, self.driver)
                 self.record_row(news_row)
             except Exception as e:
                 print("Error processing news item:", e)

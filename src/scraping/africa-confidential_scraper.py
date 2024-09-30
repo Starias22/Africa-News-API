@@ -8,10 +8,9 @@ country_identifier = 3 # Benin
 start_url = f"https://www.africa-confidential.com/browse-by-country/id/{country_identifier}/page/1"
 news_item_selector= "#ctl00_cphMain_pnlResults > *"
 
-
 next_page_identifier=f"a[href='https://www.africa-confidential.com/browse-by-country/id/{country_identifier}/page/#']"
 
-def extract_item_details(news_item):
+def extract_item_details(news_item,driver=None):
     # Extract the news article URL
     title_url = news_item.find_element(By.CSS_SELECTOR, "h2 a")
     countries = news_item.find_element(By.CSS_SELECTOR, "ul.article-countries li a").text
@@ -35,8 +34,8 @@ def extract_item_details(news_item):
     print(news_dict)
     return news_dict
 
-
-scraper = NewsScraper(start_url=start_url,
+scraper = NewsScraper(source="africa-confidential",
+                      start_url=start_url,
                       news_item_selector=news_item_selector,
                       extract_item_details=extract_item_details,
                       next_page_identifier=next_page_identifier

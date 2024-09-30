@@ -7,7 +7,7 @@ country_identifier = "benin"
 start_url = f"https://beninwebtv.com/pays/afrique/{region}/{country_identifier}/?tdb-loop-page=1"
 news_item_selector="#tdi_58 > *"
 
-def extract_item_details(news_item):
+def extract_item_details(news_item, driver=None):
         news_item_div = news_item.find_element(By.CSS_SELECTOR, "div.tdc-row")
         # Extract the news article URL
         url = news_item_div.find_element(By.TAG_NAME, "a").get_attribute("href")
@@ -44,7 +44,8 @@ def extract_item_details(news_item):
 
 next_page_identifier=f"a[href='/pays/afrique/{region}/{country_identifier}/?tdb-loop-page=#']"
 
-scraper = NewsScraper(start_url=start_url,
+scraper = NewsScraper(source="beninwebtv",
+                      start_url=start_url,
                       news_item_selector=news_item_selector,
                       extract_item_details=extract_item_details,
                       next_page_identifier=next_page_identifier
