@@ -6,7 +6,8 @@ import csv
 
 
 
-#title,author_name,author_url,publication_date,description,category,image_url,url,countries
+#title,author_name,author_url,publication_date,description,category,image_url,url,countries,content_preview
+
 class NewsScraper:
 
     def __init__(self, start_url, 
@@ -44,7 +45,7 @@ class NewsScraper:
     
     def record_row(self, row):
         # Define the CSV header
-        csv_header = ["title", "author_name", "author_url", "publication_date", "description", "category", "image_url", "url", "countries"]
+        csv_header = ["title", "author_name", "author_url", "publication_date", "description", "category", "image_url", "url", "countries", "content_preview"]
         writer = csv.DictWriter(self.file, fieldnames=csv_header)
         # Write the news data
         writer.writerow(row)
