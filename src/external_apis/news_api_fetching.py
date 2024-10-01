@@ -110,7 +110,7 @@ class NewsAPIFetcher:
         date = "2024-10-01"
         hour="00"
         
-        filepath = f'/home/starias/africa_news_api/src/staging_area/raw_news/{date}/{hour}/{self.source}.csv'
+        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{date}/{hour}/{self.source}.csv'
         # Ensure the directory exists; create if not
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
@@ -120,6 +120,7 @@ class NewsAPIFetcher:
             
             # Write the news data
             writer.writerows(news)
+            file.close()
             
 
 
