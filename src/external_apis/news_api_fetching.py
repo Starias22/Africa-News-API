@@ -8,6 +8,8 @@ from GoogleNews import GoogleNews
 from pathlib import Path
 import sys
 import csv
+from datetime import datetime
+
 # Add 'src' directory to the Python path
 src_path = Path(__file__).resolve().parents[2]
 sys.path.append(str(src_path))
@@ -107,10 +109,14 @@ class NewsAPIFetcher:
         # Define the CSV header
         csv_header = ["title", "author_name", "author_url", "publication_date", "description", "category", "image_url", "url", "countries", "content_preview", "source", "lang","content","source_name"]
         
-        date = "2024-10-01"
-        hour="00"
+        # Get the current datetime
+        now = datetime.now()
         
-        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{date}/{hour}/{self.source}.csv'
+        # Extract the date in 'YYYY-MM-DD' format and the hour as a two-digit string
+        formatted_date = now.strftime('%Y-%m-%d')
+        formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
+        
+        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/{self.source}.csv'
         # Ensure the directory exists; create if not
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 

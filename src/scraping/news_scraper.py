@@ -4,7 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import csv
 import os
-
+from datetime import datetime
 
 #title,author_name,author_url,publication_date,description,category,image_url,url,countries,content_preview,source
 
@@ -17,10 +17,17 @@ class NewsScraper:
                 next_page_identifier,
                 extract_item_details,
                 ):
-        date = "2024-10-01"
-        hour="00"
         
-        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{date}/{hour}/{source}.csv'
+
+        # Get the current datetime
+        now = datetime.now()
+
+        # Extract the date in 'YYYY-MM-DD' format and the hour as a two-digit string
+        formatted_date = now.strftime('%Y-%m-%d')
+        formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
+
+        
+        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/{source}.csv'
         # Ensure the directory exists; create if not
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
