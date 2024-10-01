@@ -15,8 +15,9 @@ class NewsScraper:
                 news_item_selector,
                 next_page_identifier,
                 extract_item_details,
-                filepath = '/home/starias/africa_news_api/src/staging_area/extracted_news.csv',):
-        self.file= open(filepath, mode='a', newline='', encoding='utf-8')
+                ):
+        filepath = f'/home/starias/africa_news_api/src/staging_area/raw_news/{source}.csv'
+        self.file= open(filepath, mode='w', newline='', encoding='utf-8')
         # Initialize the WebDriver
         self.driver = webdriver.Chrome()  # You can specify other browsers like Firefox
         self.wait = WebDriverWait(self.driver, 30)  # Explicit wait
@@ -27,6 +28,15 @@ class NewsScraper:
         self.start_url=start_url
         self.next_page_identifier = next_page_identifier
         self.source = source
+        csv_header = ["title", "author_name", "author_url", "publication_date", "description", "category", "image_url", "url", "countries", "content_preview", 
+                      #"source"
+                      ]
+        self.writer = csv.DictWriter(self.file, fieldnames=csv_header)
+        
+        #row["source"] = self.source
+        # Write the header to the file
+        self.writer.writeheader()
+        
 
 
     def get_news_items(self):
@@ -46,11 +56,9 @@ class NewsScraper:
     
     def record_row(self, row):
         # Define the CSV header
-        csv_header = ["title", "author_name", "author_url", "publication_date", "description", "category", "image_url", "url", "countries", "content_preview", "source"]
-        writer = csv.DictWriter(self.file, fieldnames=csv_header)
-        row["source"] = self.source
+        
         # Write the news data
-        writer.writerow(row)
+        self.writer.writerow(row)
     
     def access_next_page(self, next_page):
         self.driver.execute_script("arguments[0].click();", next_page)

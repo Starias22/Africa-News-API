@@ -106,9 +106,10 @@ class NewsAPIFetcher:
         # Define the CSV header
         csv_header = ["title", "author_name", "author_url", "publication_date", "description", "category", "image_url", "url", "countries", "content_preview", "source", "lang","content","source_name"]
         
-        filepath = '/home/starias/africa_news_api/src/staging_area/extracted_news.csv'
-        with open(filepath, mode='a', newline='', encoding='utf-8') as file:
+        filepath = f"/home/starias/africa_news_api/src/staging_area/raw_news/{self.source}.csv"
+        with open(filepath, mode='w', newline='', encoding='utf-8') as file:
             writer = csv.DictWriter(file, fieldnames=csv_header)
+            writer.writeheader()
             
             # Write the news data
             writer.writerows(news)
