@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import csv
+import os
 
 
 #title,author_name,author_url,publication_date,description,category,image_url,url,countries,content_preview,source
@@ -16,7 +17,13 @@ class NewsScraper:
                 next_page_identifier,
                 extract_item_details,
                 ):
-        filepath = f'/home/starias/africa_news_api/src/staging_area/raw_news/{source}.csv'
+        date = "2024-10-01"
+        hour="00"
+        
+        filepath = f'/home/starias/africa_news_api/src/staging_area/raw_news/{date}/{hour}/{source}.csv'
+        # Ensure the directory exists; create if not
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
         self.file= open(filepath, mode='w', newline='', encoding='utf-8')
         # Initialize the WebDriver
         self.driver = webdriver.Chrome()  # You can specify other browsers like Firefox
