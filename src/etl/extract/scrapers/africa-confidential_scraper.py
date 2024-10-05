@@ -5,7 +5,7 @@ import csv
 
 # Initialize an empty list to store the rows from the CSV file
 data_from_csv = []
-filename = "/home/starias/africa_news_api/africa-confidential_news_countries.csv"
+filename = "/home/starias/africa_news_api/news_countries/africa-confidential_news_countries.csv"
 # Open the CSV file for reading
 with open(filename, mode='r', newline='', encoding='utf-8') as file:
     reader = csv.reader(file)

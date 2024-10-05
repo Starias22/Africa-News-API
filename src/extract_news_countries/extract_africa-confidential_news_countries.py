@@ -41,7 +41,6 @@ try:
         url_parts = urlsplit(country_url)
 
         # Reconstruct the base URL excluding the last part
-        #country_url = f"{url_parts.scheme}://{url_parts.netloc}{url_parts.path.rsplit('/', 1)[0]}/"
         print(country_url)
 
         country_identifier = country_url.split('/')[-1]  # Get the second to last part
@@ -53,10 +52,7 @@ try:
         data.append([country_identifier, country_name, country_url])
 
         print(country_identifier, country_name, country_url)
-
-        # Append the country name and URL to the data list
-        #data.append([country_identifier, country_name, country_url])
-
+        
 except Exception as e:
     print("Error while waiting for news countries:", e)
 
