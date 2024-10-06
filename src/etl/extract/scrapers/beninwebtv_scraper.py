@@ -54,11 +54,11 @@ def extract_item_details(news_item, driver=None):
             "countries": country,
             "lang":"fr",
             "content":None,
-            "source_name":None
+            "source":None
         }
         return news_dict
 
-scraper = NewsScraper(source="beninwebtv",
+scraper = NewsScraper(extractor="beninwebtv",
                       news_item_selector=news_item_selector,
                       extract_item_details=extract_item_details
                       )

@@ -45,12 +45,12 @@ def extract_item_details(news_item,driver=None):
     "content_preview":content_preview,
     "lang":"en",
     "content":None,
-    "source_name":None
+    "source":None
                 }
     print(news_dict)
     return news_dict
 
-scraper = NewsScraper(source="africa-confidential",
+scraper = NewsScraper(extractor="africa-confidential",
                       news_item_selector=news_item_selector,
                       extract_item_details=extract_item_details,
                       

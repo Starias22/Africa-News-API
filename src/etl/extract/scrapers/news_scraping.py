@@ -9,7 +9,7 @@ from datetime import datetime
 class NewsScraper:
 
     def __init__(self, 
-                source, 
+                extractor, 
                 news_item_selector,
                 extract_item_details,
                 max_pages=1
@@ -24,7 +24,7 @@ class NewsScraper:
         formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
 
         
-        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/{source}.csv'
+        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/{extractor}.csv'
         # Ensure the directory exists; create if not
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
@@ -38,13 +38,12 @@ class NewsScraper:
         self.news_item_selector=news_item_selector
         #self.start_url=start_url
         #self.next_page_identifier = next_page_identifier
-        self.source = source
+        self.extractor = extractor
         csv_header = ["title", "author_name", "author_url", "publication_date", "description", "category", "image_url", "url", "countries", "content_preview", 
-                      "source", "lang", "content", "source_name"
+                      "extractor", "lang", "content", "source"
                       ]
         self.writer = csv.DictWriter(self.file, fieldnames=csv_header)
         
-        #row["source"] = self.source
         # Write the header to the file
         self.writer.writeheader()
         
@@ -68,7 +67,7 @@ class NewsScraper:
     
     def record_row(self, row):
         # Define the CSV header
-        row["source"] = self.source
+        row["extractor"] = self.extractor
         # Write the news data
         self.writer.writerow(row)
     

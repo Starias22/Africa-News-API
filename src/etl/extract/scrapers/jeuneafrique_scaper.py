@@ -63,14 +63,14 @@ def extract_item_details(news_item, driver):
         "countries": country,
         "lang":"fr",
         "content":None,
-        "source_name":None
+        "source":None
         }
     print(news_dict)
     return news_dict
 
 
 
-scraper = NewsScraper(source="jeuneafrique",
+scraper = NewsScraper(extractor="jeuneafrique",
                       news_item_selector=news_item_selector,
                       extract_item_details=extract_item_details
                       )

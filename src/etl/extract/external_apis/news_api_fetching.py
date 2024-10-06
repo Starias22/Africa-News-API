@@ -62,7 +62,7 @@ PAGE = 1
 
 
 class NewsAPIFetcher:
-    def __init__(self,source):
+    def __init__(self,extracor):
 
 
         self.page=PAGE
@@ -84,7 +84,7 @@ class NewsAPIFetcher:
         # Format the dates in the required format
         self.from_param = self.period_ago.strftime('%Y-%m-%dT%H:%M:%S')
         self.to = self.now.strftime('%Y-%m-%dT%H:%M:%S')
-        self.source=source
+        self.extracor = extracor
 
     def save(self, articles):
         
@@ -97,20 +97,20 @@ class NewsAPIFetcher:
                 "title": article['title'],
                 "description": article['description'],
                 "content": article["content"],
-                "source_name": article['source_name'],
+                "source": article['source_name'],
                 "url": article['url'],
                 "image_url": article['img_url'],
                 "publication_date": article['publication_date'],
                 "lang": article['lang'],
                 "author_name":article['author'],
-                "source":self.source,
+                "extracor":self.extracor,
                 "countries": article["countries"]
             }
             news.append(standardized_news)
         # Define the CSV header
         csv_header = ["title", "author_name", "author_url", "publication_date", 
                       "description", "category", "image_url", "url", "countries",
-                        "content_preview", "source", "lang","content","source_name"]
+                        "content_preview", "extracor", "lang","content","source"]
         
         # Get the current datetime
         now = datetime.now()
@@ -119,7 +119,7 @@ class NewsAPIFetcher:
         formatted_date = now.strftime('%Y-%m-%d')
         formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
         
-        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/{self.source}.csv'
+        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/{self.extracor}.csv'
         # Ensure the directory exists; create if not
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
@@ -133,8 +133,8 @@ class NewsAPIFetcher:
             
 
 
-    def fetch_articles(self, source, lang, query):
-        if source == 'google_news':
+    def fetch_articles(self, extracor, lang, query):
+        if extracor == 'google_news':
             googlenews = GoogleNews(period='25h', lang=lang)
             #print(googlenews)
             googlenews.search(query)
@@ -142,7 +142,7 @@ class NewsAPIFetcher:
             print(results)
             googlenews.clear()
             return results
-        elif source == 'newsapi':
+        elif extracor == 'newsapi':
             response = self.newsapi.get_everything(
                 q=query,
                 from_param=self.from_param,
@@ -219,4 +219,4 @@ class NewsAPIFetcher:
 
        
 
-        print(f"{total_results} news articles sent by {self.source.capitalize()} producer")
+        #print(f"{total_results} news articles sent by {self.source.capitalize()} extracor")
