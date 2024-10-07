@@ -1,3 +1,4 @@
+-- psql -U starias -d africa_news_db
 -- Create tables.
 \include create_tables.sql
 
