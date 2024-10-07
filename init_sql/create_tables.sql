@@ -13,8 +13,8 @@ DROP TABLE IF EXISTS public.extractor;
 CREATE TABLE IF NOT EXISTS public.author
 (
     author_id serial NOT NULL,
-    author_name character varying(100) NOT NULL,
-    author_url text NOT NULL,
+    author_name character varying(100), -- made nullable
+    author_url text, -- made nullable
     PRIMARY KEY (author_id)
 );
 
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS public.author
 CREATE TABLE IF NOT EXISTS public.country
 (
     country_id smallserial NOT NULL,
-    country_name character varying(100) NOT NULL,
+    country_name character varying(100) , -- made nullable
     country_code character(2) NOT NULL,
     PRIMARY KEY (country_id)
 );
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS public.language
 CREATE TABLE IF NOT EXISTS public.category
 (
     category_id smallserial NOT NULL,
-    category_name character varying(100) NOT NULL,
+    category_name character varying(100), -- made nullable
     PRIMARY KEY (category_id)
 );
 
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS public.extractor
 
 CREATE TABLE IF NOT EXISTS public.article
 (
-    article_id integer NOT NULL,
+    article_id SERIAL NOT NULL, -- Updated to serial
     author_id integer NOT NULL,
     category_id smallint NOT NULL,
     extractor_id smallint,

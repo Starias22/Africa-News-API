@@ -1,7 +1,10 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import lower, udf, when, col
+from pyspark.sql.functions import lower, udf, when, col, initcap
 from pyspark.sql.types import StringType
 import unidecode
+import os
+from datetime import datetime
+from pyspark.sql import functions as F
 
 # Initialize Spark session
 spark = SparkSession.builder.appName("LoadCSV").getOrCreate()
@@ -91,6 +94,9 @@ df = df.withColumn(
     .otherwise(col("countries"))
 )
 
+# Transform country names to capitalize the first letter
+#df = df.withColumn("countries", initcap(col("countries")))
+
 
 
 
@@ -114,26 +120,28 @@ n=countries_df.count()
 print(n)
 print("****************")
 countries_df.show(10000, truncate=False)
-from pyspark.sql import functions as F
 # Apply the grouping
 df = df.withColumn(
     "category",
     F.when(col("category").contains("sport") | col("category").contains("athletisme"), "sport")
    .when(col("category").isin("economie"), "business-economy-finance")
-    .when(col("category").isin("politique"), "politis")
+    .when(col("category").isin("politique"), "politics")
     .when(col("category").isin("technologie"), "technology")
     .when(col("category").isin("sante"), "health-wellness")
     .when(col("category").isin("societe"), "society")
     .when(col("category").isin("securite"), "security")
     .when(col("category").isin("beaute - mode"), "lifestyle")
     .when(col("category").isin("celebrite"), "celebrity")
-    .when(col("category").isin("non classifie(e)", "actus"), "undefined")
+    .when(col("category").isin("non classifie(e)", "actus"), None)
     .when(col("category").isin("ecoles - formations","education"), "education")
     .when(col("category").isin("diplomatie"), "diplomacy")
     .when(col("category").isin( "analyse et decryptage"), "analysis-interpretation")
     .when(col("category").isin( "faits divers"), "miscellaneous")
     .otherwise(col("category"))
 )
+
+# Replace null values in the category column with "undefined"
+#df = df.fillna({"category": "undefined"})
 
 categories_df = df.select("category").distinct().orderBy("category")
 categories_df.show(10000, truncate=False)
@@ -185,6 +193,9 @@ df = df.withColumn("publication_date",
                    .otherwise(None))  # Keep the original value if month is NULL
 
 
+# Convert Unix timestamp back to date format 'yyyy-MM-dd'
+df = df.withColumn("publication_date", F.from_unixtime(F.col("publication_date"), "yyyy-MM-dd"))
+
 df.select(["publication_date", "day", "month", "year"]).show()
 #df.select("year").distinct().orderBy("year").show(1000)
 #df.select("month").distinct().orderBy("month").show(1000)
@@ -193,7 +204,8 @@ df.select(["publication_date", "day", "month", "year"]).show()
 # Remove the day, month, and year columns
 df = df.drop("day", "month", "year")
 
-from datetime import datetime
+
+
  # Get the current datetime
 now = datetime.now()
 
@@ -204,12 +216,18 @@ formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
         
 filepath = f'/home/starias/africa_news_api/staging_area/transformed_news/{formatted_date}/{formatted_hour}'
 
-import os
+
+
 # Create all directories if they do not exist
 # os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
 # Save the DataFrame to a CSV file
-df.write.csv(filepath, header=True, mode='overwrite')
+#df.write.csv(filepath, header=True, mode='overwrite')
+# Save the DataFrame to a CSV file with proper quoting
+df.write.option("quote", '"').option("escape", '"').csv(filepath, header=True, mode='overwrite')
 
+
+filtered_df = df.filter(df.title == "Tchad : l’avocat américain  Reed Brody expulsé").select("description")
+filtered_df.show(truncate=False)
 
 spark.stop()
