@@ -15,11 +15,11 @@ df = spark.read \
     .option("quote", '"') \
     .option("escape", '"') \
     .option("multiLine", True) \
-    .csv("/home/starias/africa_news_api/staging_area/raw_news/2024-10-05/16/*.csv", header=True, inferSchema=True)
+    .csv("/home/starias/africa_news_api/staging_area/raw_news/2024-10-08/18/*.csv", header=True, inferSchema=True)
 
 df = df.dropDuplicates()
 
-df = df.withColumn("countries", lower(df["countries"])).withColumn("category", lower(df["category"]))
+df = df.withColumn("country", lower(df["country"])).withColumn("category", lower(df["category"]))
 
 # Step 3: Define UDF to remove accents
 def remove_accents(text):
@@ -31,7 +31,7 @@ def remove_accents(text):
 remove_accents_udf = udf(remove_accents, StringType())
 
 # Step 5: Apply the UDF to the 'countries' column
-df = df.withColumn("countries", remove_accents_udf(df["countries"])).withColumn("category", remove_accents_udf(df["category"]))
+df = df.withColumn("country", remove_accents_udf(df["country"])).withColumn("category", remove_accents_udf(df["category"]))
 
 
 country_translation = {
@@ -86,19 +86,13 @@ def translate_country(country):
 
 translate_country_udf = udf(translate_country, StringType())
 
-df = df.withColumn("countries", translate_country_udf(df["countries"]))
+df = df.withColumn("country", translate_country_udf(df["country"]))
 
 df = df.withColumn(
-    "countries", 
-    when(col("countries").isin("africa", "monde", "moyen-orient"), None)
-    .otherwise(col("countries"))
+    "country", 
+    when(col("country").isin("africa", "monde", "moyen-orient"), None)
+    .otherwise(col("country"))
 )
-
-# Transform country names to capitalize the first letter
-#df = df.withColumn("countries", initcap(col("countries")))
-
-
-
 
 # Show the transformed DataFrame
 df.show(truncate=False)
@@ -112,7 +106,7 @@ df.filter((df["source"] == "") | (df["source"].isNull())).show(3000)
 m=df.count()
 print(m)
 
-countries_df = df.select("countries").distinct().orderBy("countries")
+countries_df = df.select("country").distinct().orderBy("country")
 
 
 n=countries_df.count()
@@ -197,9 +191,6 @@ df = df.withColumn("publication_date",
 df = df.withColumn("publication_date", F.from_unixtime(F.col("publication_date"), "yyyy-MM-dd"))
 
 df.select(["publication_date", "day", "month", "year"]).show()
-#df.select("year").distinct().orderBy("year").show(1000)
-#df.select("month").distinct().orderBy("month").show(1000)
-#df.select("day").distinct().orderBy("day").show(1000)
 
 # Remove the day, month, and year columns
 df = df.drop("day", "month", "year")

@@ -39,7 +39,7 @@ class NewsScraper:
         #self.start_url=start_url
         #self.next_page_identifier = next_page_identifier
         self.extractor = extractor
-        csv_header = ["title", "author_name", "author_url", "publication_date", "description", "category", "image_url", "url", "countries", "content_preview", 
+        csv_header = ["title", "author_name", "author_url", "publication_date", "description", "category", "image_url", "url", "country", "content_preview", 
                       "extractor", "lang", "content", "source"
                       ]
         self.writer = csv.DictWriter(self.file, fieldnames=csv_header)

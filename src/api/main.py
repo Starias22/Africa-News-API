@@ -3,14 +3,20 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
-# uvicorn main:app --reload
+from sqlalchemy import func
+from datetime import datetime
 import sys
 import os
-
+from fastapi import Query
+from fastapi import HTTPException
 # Add the src directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from db.database import *
+
+# uvicorn main:app --reload
+
+
 
 app = FastAPI()
     
@@ -64,18 +70,81 @@ async def get_authors():
         return [author.to_dict() for author in authors]
 
 @app.get("/articles", response_model=list[dict])
-async def get_articles():
+async def get_articles(
+    country: str = Query(None),
+    lang: str = Query(None),
+    category: str = Query(None),
+    author: str = Query(None),
+    source: str = Query(None),
+    start_date: str = Query(None),  # Start date for the publication date range
+    end_date: str = Query(None),    # End date for the publication date range
+    order_by: str = Query("publication_date"),  # Field to order by (default: publication_date)
+    order: str = Query("desc"),  # Sort order: 'asc' for ascending, 'desc' for descending
+    limit: int = Query(10, gt=0, le=100),  # Maximum number of results to return (default 10, max 100)
+    offset: int = Query(0, ge=0)  # Number of results to skip for pagination (default 0)
+):
     async with SessionLocal() as session:
-        # Query the articles table and join the related tables
+        # Base query for articles
         query = (
             select(Article)
             .options(
-                joinedload(Article.author),      # Eager load the Author relationship
-                joinedload(Article.category),    # Eager load the Category relationship
-                joinedload(Article.country),     # Eager load the Country relationship
-                joinedload(Article.language)     # Eager load the Language relationship
+                joinedload(Article.author),
+                joinedload(Article.category),
+                joinedload(Article.country),
+                joinedload(Article.language)
             )
         )
+
+        # Add filters based on provided query parameters
+        if country:
+            if len(country) == 2:
+                query = query.join(Article.country).filter(func.lower(Country.country_code) == func.lower(country))
+            else:
+                query = query.join(Article.country).filter(func.lower(Country.country_name) == func.lower(country))
+        
+        if lang:
+            if len(lang) == 2:
+                query = query.join(Article.language).filter(func.lower(Language.lang_code) == func.lower(lang))
+            else:
+                query = query.join(Article.language).filter(func.lower(Language.lang_name) == func.lower(lang))
+            
+        if category:
+            query = query.join(Article.category).filter(func.lower(Category.category_name) == func.lower(category))
+        
+        if author:
+            query = query.join(Article.author).filter(func.lower(Author.author_name) == func.lower(author))
+        
+        if source:
+            query = query.filter(func.lower(Article.source) == func.lower(source))
+
+        # Filter by publication date range
+        if start_date and end_date:
+            try:
+                start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+                end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+                query = query.filter(Article.publication_date.between(start_dt, end_dt))
+            except ValueError:
+                return {"error": "Invalid date format. Use YYYY-MM-DD."}
+
+        # Apply ordering
+        valid_order_by_fields = {
+            "publication_date": Article.publication_date,
+            "source": Article.source
+        }
+
+        if order_by not in valid_order_by_fields:
+            raise HTTPException(status_code=400, detail=f"Invalid order_by field. Choose from {list(valid_order_by_fields.keys())}.")
+
+        # Apply sort order (ascending or descending)
+        if order == "desc":
+            query = query.order_by(valid_order_by_fields[order_by].desc())
+        else:
+            query = query.order_by(valid_order_by_fields[order_by].asc())
+
+        # Apply pagination (limit and offset)
+        query = query.limit(limit).offset(offset)
+
+        # Execute query and fetch results
         result = await session.execute(query)
         articles = result.scalars().all()
         
@@ -84,25 +153,25 @@ async def get_articles():
             {
                 "id": article.article_id,
                 "author": {
-                    "id": article.author.author_id,  # Get author name
-                    "name": article.author.author_name,  # Get author name
-                    "url": article.author.author_url     # Get author URL
+                    "id": article.author.author_id,
+                    "name": article.author.author_name,
+                    "url": article.author.author_url
                 },
                 "category": {
                     "id": article.category.category_id,
-                    "name": article.category.category_name  # Get category name
+                    "name": article.category.category_name
                 },
                 "country": {
                     "id": article.country.country_id,
                     "name": article.country.country_name,
-                    "code": article.country.country_code  # Get country code
+                    "code": article.country.country_code
                 },
                 "language": {
                     "id": article.language.lang_id,
                     "name": article.language.lang_name,
-                    "code": article.language.lang_code  # Get language code
+                    "code": article.language.lang_code
                 },
-                "publication_date": str(article.publication_date),  # Convert date to string
+                "publication_date": str(article.publication_date),
                 "title": article.title,
                 "description": article.description,
                 "img_url": article.img_url,
@@ -112,6 +181,7 @@ async def get_articles():
                 "source": article.source,
             } for article in articles
         ]
+
 
 
     

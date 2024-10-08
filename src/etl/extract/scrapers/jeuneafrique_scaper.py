@@ -60,7 +60,7 @@ def extract_item_details(news_item, driver):
         "description": description,
         "image_url": image_url,
         "url": url,
-        "countries": country,
+        "country": country,
         "lang":"fr",
         "content":None,
         "source":None

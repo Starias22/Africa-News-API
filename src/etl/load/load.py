@@ -44,7 +44,7 @@ def insert_article(conn, row):
     with conn.cursor() as cur:
         # Retrieve foreign keys from the related tables
         author_id = get_or_create_id(conn, 'author', 'author_id', 'author_name', row['author_name'])
-        country_id = get_id_from_table(conn, 'country', 'country_id', 'country_name', row['countries'])
+        country_id = get_id_from_table(conn, 'country', 'country_id', 'country_name', row['country'])
         lang_id = get_id_from_table(conn, 'language', 'lang_id', 'lang_code', row['lang'])
         category_id = get_id_from_table(conn, 'category', 'category_id', 'category_name', row['category'])
         extractor_id = get_id_from_table(conn, 'extractor', 'extractor_id', 'extractor_name', 'jeuneafrique')
@@ -101,8 +101,8 @@ def load_csv_to_db(csv_file):
 now = datetime.now()
 
 # Extract the date in 'YYYY-MM-DD' format and the hour as a two-digit string
-formatted_date = now.strftime('%Y-%m-%d')
-formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
+formatted_date = "2024-10-08" # now.strftime('%Y-%m-%d')
+formatted_hour = "18"#now.strftime('%H')  # This will be '02' if the hour is 2
 
 
 # Try to get the CSV file with the specified pattern

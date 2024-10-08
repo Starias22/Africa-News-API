@@ -62,7 +62,7 @@ PAGE = 1
 
 
 class NewsAPIFetcher:
-    def __init__(self,extracor):
+    def __init__(self,extractor):
 
 
         self.page=PAGE
@@ -84,7 +84,7 @@ class NewsAPIFetcher:
         # Format the dates in the required format
         self.from_param = self.period_ago.strftime('%Y-%m-%dT%H:%M:%S')
         self.to = self.now.strftime('%Y-%m-%dT%H:%M:%S')
-        self.extracor = extracor
+        self.extractor = extractor
 
     def save(self, articles):
         
@@ -93,24 +93,26 @@ class NewsAPIFetcher:
         news = []
 
         for _, article in articles.iterrows():
+            print(article)
+            
             standardized_news = {
                 "title": article['title'],
                 "description": article['description'],
                 "content": article["content"],
-                "source": article['source_name'],
+                "source": article.get('source_name', None),
                 "url": article['url'],
                 "image_url": article['img_url'],
                 "publication_date": article['publication_date'],
                 "lang": article['lang'],
                 "author_name":article['author'],
-                "extracor":self.extracor,
-                "countries": article["countries"]
+                "extractor":self.extractor,
+                "country": article["country"]
             }
             news.append(standardized_news)
         # Define the CSV header
         csv_header = ["title", "author_name", "author_url", "publication_date", 
-                      "description", "category", "image_url", "url", "countries",
-                        "content_preview", "extracor", "lang","content","source"]
+                      "description", "category", "image_url", "url", "country",
+                        "content_preview", "extractor", "lang","content","source"]
         
         # Get the current datetime
         now = datetime.now()
@@ -119,12 +121,12 @@ class NewsAPIFetcher:
         formatted_date = now.strftime('%Y-%m-%d')
         formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
         
-        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/{self.extracor}.csv'
+        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/{self.extractor}.csv'
         # Ensure the directory exists; create if not
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
-
+        
         with open(filepath, mode='w', newline='', encoding='utf-8') as file:
-            writer = csv.DictWriter(file, fieldnames=csv_header)
+            writer = csv.DictWriter(file, fieldnames=csv_header, quotechar='"', escapechar='\\')
             writer.writeheader()
             
             # Write the news data
@@ -171,7 +173,7 @@ class NewsAPIFetcher:
 
 
             articles_df['publication_date'] = articles_df['publication_date'].apply(lambda x: int(x.timestamp()) if pd.notna(x) else None)
-            articles_df['content']='From Google News'
+            articles_df['content']= None
         elif source == 'newsapi':
             articles_df.rename(columns={
             'urlToImage': 'img_url',
@@ -179,7 +181,7 @@ class NewsAPIFetcher:
             }, inplace=True)
             fmt = "%Y-%m-%dT%H:%M:%SZ"
             articles_df['publication_date'] = articles_df['publication_date'].apply(lambda x: int(datetime.strptime(x, fmt).timestamp()))
-            articles_df['source_name'] = articles_df['source'].apply(lambda x: x['name'] if x else None)
+            articles_df['source'] = articles_df['source'].apply(lambda x: x['name'] if x else None)
             articles_df.drop(columns=['source'], inplace=True)
         
         articles_df.replace(self.null_replacements, inplace=True)
@@ -194,17 +196,17 @@ class NewsAPIFetcher:
 
         for lang in languages[:1]:
             results = []
-            for query in queries[:2]:
-                articles = self.fetch_articles(self.source, lang, query)
+            for query in queries[:10]:
+                articles = self.fetch_articles(self.extractor, lang, query)
                 if articles:
                     for article in articles:
-                        article["countries"] = query
+                        article["country"] = query
                     results.extend(articles)
                     print("********")
                     print(results)
             
             if results:
-                processed_articles = self.process_articles(results, self.source)
+                processed_articles = self.process_articles(results, self.extractor)
                 processed_articles['lang'] = lang
                 articles_list.append(processed_articles)
                 num_results_dict[lang] = len(processed_articles)

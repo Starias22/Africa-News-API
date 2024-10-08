@@ -41,7 +41,7 @@ def extract_item_details(news_item,driver=None):
     "publication_date": publication_date,
     "description": description,
     "url": url,
-    "countries": countries,
+    "country": countries,
     "content_preview":content_preview,
     "lang":"en",
     "content":None,
