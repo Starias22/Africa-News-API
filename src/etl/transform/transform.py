@@ -1,8 +1,7 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import lower, udf, when, col, initcap
+from pyspark.sql.functions import lower, udf, when, col
 from pyspark.sql.types import StringType
 import unidecode
-import os
 from datetime import datetime
 from pyspark.sql import functions as F
 
@@ -78,7 +77,6 @@ country_translation = {
     "afrique":"africa"
 }
 
-#"moyen-orient" from the list as well, alongside "africa" and "monde".
 
 # UDF to map French country names to their English equivalents
 def translate_country(country):
@@ -102,17 +100,9 @@ df.show(truncate=False)
 # Show the loaded data
 df.filter((df["source"] == "") | (df["source"].isNull())).show(3000)
 
-
-m=df.count()
-print(m)
-
 countries_df = df.select("country").distinct().orderBy("country")
 
 
-n=countries_df.count()
-
-print(n)
-print("****************")
 countries_df.show(10000, truncate=False)
 # Apply the grouping
 df = df.withColumn(
@@ -133,9 +123,6 @@ df = df.withColumn(
     .when(col("category").isin( "faits divers"), "miscellaneous")
     .otherwise(col("category"))
 )
-
-# Replace null values in the category column with "undefined"
-#df = df.fillna({"category": "undefined"})
 
 categories_df = df.select("category").distinct().orderBy("category")
 categories_df.show(10000, truncate=False)
@@ -208,17 +195,7 @@ formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
 filepath = f'/home/starias/africa_news_api/staging_area/transformed_news/{formatted_date}/{formatted_hour}'
 
 
-
-# Create all directories if they do not exist
-# os.makedirs(os.path.dirname(filepath), exist_ok=True)
-
-# Save the DataFrame to a CSV file
-#df.write.csv(filepath, header=True, mode='overwrite')
 # Save the DataFrame to a CSV file with proper quoting
 df.write.option("quote", '"').option("escape", '"').csv(filepath, header=True, mode='overwrite')
-
-
-filtered_df = df.filter(df.title == "Tchad : l’avocat américain  Reed Brody expulsé").select("description")
-filtered_df.show(truncate=False)
 
 spark.stop()

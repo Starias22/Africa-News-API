@@ -3,38 +3,32 @@ import psycopg2
 import glob
 from datetime import datetime
 
-# Function to retrieve primary key/foreign key from a table
-def get_id_from_table(conn, table_name, key_column, value_column, value):
+# Function to retrieve primary key/foreign key from a table with multiple columns
+def get_id_from_table(conn, table_name, key_column, value_columns, values):
     with conn.cursor() as cur:
-        if value:
-            query = f"SELECT {key_column} FROM {table_name} WHERE {value_column} = %s;"
-            print(query)
-            print(value)
-            cur.execute(query, (value,))
-        else: 
-            query = f"SELECT {key_column} FROM {table_name} WHERE {value_column} IS NULL"
-            print(query)
-            print(value)
-            cur.execute(query)
+        conditions = " AND ".join([f"{col} = %s" if val is not None else f"{col} IS NULL" for col, val in zip(value_columns, values)])
+        query = f"SELECT {key_column} FROM {table_name} WHERE {conditions};"
+        cur.execute(query, [val for val in values if val is not None])
         result = cur.fetchone()
         if result:
             return result[0]
         else:
             return None
 
-# Function to insert new record if not already present, and return its primary key
-def get_or_create_id(conn, table_name, key_column, value_column, value):
-    existing_id = get_id_from_table(conn, table_name, key_column, value_column, value)
+# Function to insert new author if not already present, and return its primary key
+def get_or_create_author(conn, author_name, author_url):
+    existing_id = get_id_from_table(conn, 'author', 'author_id', ['author_name', 'author_url'], [author_name, author_url])
     if existing_id:
         return existing_id
     else:
         with conn.cursor() as cur:
-            insert_query = f"INSERT INTO {table_name} ({value_column}) VALUES (%s) RETURNING {key_column};"
-            cur.execute(insert_query, (value,))
+            insert_query = f"INSERT INTO author (author_name, author_url) VALUES (%s, %s) RETURNING author_id;"
+            cur.execute(insert_query, (author_name, author_url))
             conn.commit()
             return cur.fetchone()[0]
+        
 
-# Function to insert article data
+# Updated function to insert article data
 def insert_article(conn, row):
     # Convert 'NULL' string to None
     for key, value in row.items():
@@ -43,17 +37,11 @@ def insert_article(conn, row):
 
     with conn.cursor() as cur:
         # Retrieve foreign keys from the related tables
-        author_id = get_or_create_id(conn, 'author', 'author_id', 'author_name', row['author_name'])
-        country_id = get_id_from_table(conn, 'country', 'country_id', 'country_name', row['country'])
-        lang_id = get_id_from_table(conn, 'language', 'lang_id', 'lang_code', row['lang'])
-        category_id = get_id_from_table(conn, 'category', 'category_id', 'category_name', row['category'])
-        extractor_id = get_id_from_table(conn, 'extractor', 'extractor_id', 'extractor_name', 'jeuneafrique')
-        print("+++++++++++++++++")
-        
-        print(row)
-        print(row['publication_date'])
-        print(row['category'])
-        print("*****")
+        author_id = get_or_create_author(conn, row['author_name'], row.get('author_url'))
+        country_id = get_id_from_table(conn, 'country', 'country_id', ['country_name'], [row['country']])
+        lang_id = get_id_from_table(conn, 'language', 'lang_id', ['lang_code'], [row['lang']])
+        category_id = get_id_from_table(conn, 'category', 'category_id', ['category_name'], [row['category']])
+        extractor_id = get_id_from_table(conn, 'extractor', 'extractor_id', ['extractor_name'], ['jeuneafrique'])
 
         # Insert article data into the article table
         article_query = """
@@ -77,7 +65,7 @@ def insert_article(conn, row):
         ))
         conn.commit()
 
-# Function to load CSV into the database
+# Updated CSV load function to include author_url
 def load_csv_to_db(csv_file):
     # Connect to your PostgreSQL database
     conn = psycopg2.connect(
