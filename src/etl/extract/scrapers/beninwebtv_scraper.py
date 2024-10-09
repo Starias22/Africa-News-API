@@ -4,23 +4,13 @@ from urllib.parse import urlparse
 import csv
 
 # Initialize an empty list to store the rows from the CSV file
-data_from_csv = []
+countries_data = []
 filename = "/home/starias/africa_news_api/news_countries/beninwebtv_news_countries.csv"
-# Open the CSV file for reading
-with open(filename, mode='r', newline='', encoding='utf-8') as file:
-    reader = csv.reader(file)
-    # Skip the header row
-    next(reader)
-    # Read the remaining rows and append them to the list
-    for row in reader:
-        data_from_csv.append(row)
 
-# Print the data read from the CSV file
-print("Data read from CSV file:")
 
 news_item_selector="#tdi_58 > *"
 
-def extract_item_details(news_item, driver=None):
+def extract_item_details(news_item, driver=None,country=None):
         news_item_div = news_item.find_element(By.CSS_SELECTOR, "div.tdc-row")
         # Extract the news article URL
         url = news_item_div.find_element(By.TAG_NAME, "a").get_attribute("href")
@@ -60,26 +50,10 @@ def extract_item_details(news_item, driver=None):
 
 scraper = NewsScraper(extractor="beninwebtv",
                       news_item_selector=news_item_selector,
-                      extract_item_details=extract_item_details
+                      extract_item_details=extract_item_details,
+                      countries_csv_file = filename,
+                      url_second_part="page/#/" 
                       )
 
 
-
-for item in data_from_csv:
-    start_url = item[1]
-    next_page_identifier = start_url + "?tdb-loop-page=#"
-    # Parse the URL
-    parsed_url = urlparse(start_url)
-
-    # Extract the path
-    path = parsed_url.path
-    print("The path is", path)
-    next_page_identifier=f"a[href='{path}?tdb-loop-page=#']"
-    scraper.scrape_news(
-         start_url=start_url,
-         next_page_identifier=next_page_identifier
-    )
-
-    
-
-
+scraper.scrape_all_news()

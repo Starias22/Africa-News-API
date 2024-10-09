@@ -4,11 +4,15 @@ from datetime import datetime, timedelta
 import pytz
 from newsapi import NewsApiClient
 from GoogleNews import GoogleNews
-
+import os
 from pathlib import Path
 import sys
 import csv
 from datetime import datetime
+
+# Add the `src` directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../..')))
+from src.logs.log import Logger
 
 # Add 'src' directory to the Python path
 src_path = Path(__file__).resolve().parents[2]
@@ -86,6 +90,20 @@ class NewsAPIFetcher:
         self.to = self.now.strftime('%Y-%m-%dT%H:%M:%S')
         self.extractor = extractor
 
+        # Get the current datetime
+        now = datetime.now()
+        # Extract the date in 'YYYY-MM-DD' format and the hour as a two-digit string
+        formatted_date = now.strftime('%Y-%m-%d')
+        formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
+
+        log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/extract/{extractor}.txt"
+        # Ensure the directory exists; create if not
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
+        self.logger = Logger(log_file=log_file)
+        self.logger.info(f"Started {extractor} extractor")
+        
+
     def save(self, articles):
         
         pass
@@ -93,7 +111,7 @@ class NewsAPIFetcher:
         news = []
 
         for _, article in articles.iterrows():
-            print(article)
+            #print(article)
             
             standardized_news = {
                 "title": article['title'],
@@ -132,6 +150,7 @@ class NewsAPIFetcher:
             # Write the news data
             writer.writerows(news)
             file.close()
+        self.logger.info(f"Written header to CSV file: {filepath}")
             
 
 
@@ -141,7 +160,7 @@ class NewsAPIFetcher:
             #print(googlenews)
             googlenews.search(query)
             results = googlenews.result()
-            print(results)
+            #print(results)
             googlenews.clear()
             return results
         elif extracor == 'newsapi':
@@ -193,17 +212,20 @@ class NewsAPIFetcher:
         total_results = 0
         languages=self.languages
         queries=self.query
-
+        i = 1
         for lang in languages[:1]:
+            self.logger.info(f"\t\tFetching news for {lang} language")
             results = []
             for query in queries[:10]:
+                self.logger.info(f"\t\t\t\t{query} [{i}/{len(queries[:10])}]")
                 articles = self.fetch_articles(self.extractor, lang, query)
                 if articles:
                     for article in articles:
                         article["country"] = query
                     results.extend(articles)
-                    print("********")
-                    print(results)
+                    #print("********")
+                    #print(results)
+                i += 1
             
             if results:
                 processed_articles = self.process_articles(results, self.extractor)
@@ -216,9 +238,7 @@ class NewsAPIFetcher:
             all_articles = pd.concat(articles_list, axis=0, ignore_index=True)
         else:
             all_articles = pd.DataFrame()
-        print(all_articles)
+        #print(all_articles)
         self.save(all_articles)
-
-       
-
-        #print(f"{total_results} news articles sent by {self.source.capitalize()} extracor")
+        self.logger.info("Written news into CSV file")
+        self.logger.info(f"Completed {self.extractor} extractor")

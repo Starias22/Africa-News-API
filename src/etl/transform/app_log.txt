@@ -1,0 +1,10 @@
+[2024-Oct-09 23:28:39] [INFO] This is an info message.
+[2024-Oct-09 23:28:39] [ERROR] An error occurred!
+[2024-Oct-09 23:28:39] [DEBUG] Debugging information.
+[2024-Oct-09 23:28:39] [WARNING] This is a warning.
+[2024-Oct-09 23:28:39] [CRITICAL] Critical system failure!
+[2024-Oct-09 23:30:39] [INFO] This is an info message.
+[2024-Oct-09 23:30:39] [ERROR] An error occurred!
+[2024-Oct-09 23:30:39] [DEBUG] Debugging information.
+[2024-Oct-09 23:30:39] [WARNING] This is a warning.
+[2024-Oct-09 23:30:39] [CRITICAL] Critical system failure!

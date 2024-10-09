@@ -5,16 +5,58 @@ import unidecode
 from datetime import datetime
 from pyspark.sql import functions as F
 
+from urllib.parse import urlparse
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import csv
+import os
+import sys
+from datetime import datetime
+# Add the `src` directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+from src.logs.log import Logger
+
+# Get the current datetime
+now = datetime.now()
+# Extract the date in 'YYYY-MM-DD' format and the hour as a two-digit string
+formatted_date = now.strftime('%Y-%m-%d') #"2024-10-09" #now.strftime('%Y-%m-%d')
+formatted_hour = now.strftime('%H') #"22" # now.strftime('%H')  # This will be '02' if the hour is 2
+
+
+log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/transform.txt"
+# Ensure the directory exists; create if not
+os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
+logger = Logger(log_file=log_file)
+
+
 # Initialize Spark session
 spark = SparkSession.builder.appName("LoadCSV").getOrCreate()
 
+logger.info("Initialized Spark session")
+
+
+
+
+
 # Load all CSV files in the directory (use wildcard to match file names)
+
+filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/*.csv'
+
 
 df = spark.read \
     .option("quote", '"') \
     .option("escape", '"') \
     .option("multiLine", True) \
-    .csv("/home/starias/africa_news_api/staging_area/raw_news/2024-10-08/18/*.csv", header=True, inferSchema=True)
+    .csv(filepath, header=True, inferSchema=True)
+
+
+logger.info("Loaded all CSV files from staging area into a Spark dataframe")
+
+
+logger.info("Started transformations")
 
 df = df.dropDuplicates()
 
@@ -100,6 +142,7 @@ df.show(truncate=False)
 # Show the loaded data
 df.filter((df["source"] == "") | (df["source"].isNull())).show(3000)
 
+
 countries_df = df.select("country").distinct().orderBy("country")
 
 
@@ -121,6 +164,8 @@ df = df.withColumn(
     .when(col("category").isin("diplomatie"), "diplomacy")
     .when(col("category").isin( "analyse et decryptage"), "analysis-interpretation")
     .when(col("category").isin( "faits divers"), "miscellaneous")
+    .when(col("category").isin("conseil des ministres"), "council of ministers")
+    .when(col("category").isin("musiques"), "music")
     .otherwise(col("category"))
 )
 
@@ -146,6 +191,7 @@ df = df.withColumn("year",
 df = df.withColumn("day", 
                    F.regexp_replace(F.col("day"), "(nd|st|th|rd)$", ""))
 
+
 df = df.withColumn(
     "month",
     F.when(col("month").contains("janv"), 1)
@@ -159,9 +205,15 @@ df = df.withColumn(
      .when(col("month").contains("sept"),9)
      .when(col("month").contains("oct"), 10)
      .when(col("month").contains("nov"), 11)
-     .when(col("month").contains("dec"), 12)
+    .when(col("month").contains("dec") | col("month").contains("déc"), 12)     
      .otherwise(None)
 )
+
+#Council of Ministers
+print("***************")
+df.select(["publication_date", "day", "month", "year", "country", "category"]).show(1000, truncate=False)
+
+
 
 # Construct the publication_date and convert it to an integer Unix timestamp
 df = df.withColumn("publication_date", 
@@ -183,13 +235,14 @@ df.select(["publication_date", "day", "month", "year"]).show()
 df = df.drop("day", "month", "year")
 
 
+logger.info("Completed transformations")
 
  # Get the current datetime
-now = datetime.now()
+#now = datetime.now()
 
 # Extract the date in 'YYYY-MM-DD' format and the hour as a two-digit string
-formatted_date = now.strftime('%Y-%m-%d')
-formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
+#formatted_date = now.strftime('%Y-%m-%d')
+#formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
 
         
 filepath = f'/home/starias/africa_news_api/staging_area/transformed_news/{formatted_date}/{formatted_hour}'
@@ -198,4 +251,7 @@ filepath = f'/home/starias/africa_news_api/staging_area/transformed_news/{format
 # Save the DataFrame to a CSV file with proper quoting
 df.write.option("quote", '"').option("escape", '"').csv(filepath, header=True, mode='overwrite')
 
+logger.info("Written transformed news into a CSV file")
 spark.stop()
+
+logger.info("Stopped Spark session")

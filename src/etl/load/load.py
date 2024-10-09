@@ -3,6 +3,14 @@ import psycopg2
 import glob
 from datetime import datetime
 
+import os
+import sys
+from datetime import datetime
+# Add the `src` directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
+from src.logs.log import Logger
+
+
 # Function to retrieve primary key/foreign key from a table with multiple columns
 def get_id_from_table(conn, table_name, key_column, value_columns, values):
     with conn.cursor() as cur:
@@ -67,6 +75,8 @@ def insert_article(conn, row):
 
 # Updated CSV load function to include author_url
 def load_csv_to_db(csv_file):
+
+    
     # Connect to your PostgreSQL database
     conn = psycopg2.connect(
         dbname="africa_news_db",
@@ -75,22 +85,38 @@ def load_csv_to_db(csv_file):
         host="localhost",
         port=5432
     )
+    logger.info("Connected to PostgreSQL database")
 
     try:
         # Read the CSV file
         with open(csv_file, 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file, quoting=csv.QUOTE_MINIMAL, escapechar='\\')
+            logger.info("Read transformed CSV file")
             for row in reader:
                 insert_article(conn, row)
     finally:
         conn.close()
+    
+    logger.info("Completed load process")
 
  # Get the current datetime
 now = datetime.now()
 
+import os
+# Get the current datetime
+now = datetime.now()
+        
 # Extract the date in 'YYYY-MM-DD' format and the hour as a two-digit string
-formatted_date = "2024-10-08" # now.strftime('%Y-%m-%d')
-formatted_hour = "18"#now.strftime('%H')  # This will be '02' if the hour is 2
+formatted_date = now.strftime('%Y-%m-%d')
+formatted_hour = now.strftime('%H') 
+        
+log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/load.txt"
+os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
+logger =Logger(log_file=log_file)
+
+logger.info("Started load process")
+# Ensure the directory exists; create if not
 
 
 # Try to get the CSV file with the specified pattern
@@ -100,9 +126,9 @@ try:
     if not csv_files:
         raise FileNotFoundError(f"No CSV files found for the date {formatted_date} and hour {formatted_hour}.")
     
-    # Get the first CSV file
     csv_file = csv_files[0]
-    print(f"Loading CSV file: {csv_file}")
+    
+    #print(f"Loading CSV file: {csv_file}")
 
     # Run the script
     load_csv_to_db(csv_file)

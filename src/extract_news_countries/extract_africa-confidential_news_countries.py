@@ -49,7 +49,7 @@ try:
         
 
         # Append the country name and URL to the data list
-        data.append([country_identifier, country_name, country_url])
+        data.append([country_identifier, country_url, country_name])
 
         print(country_identifier, country_name, country_url)
         
@@ -61,7 +61,7 @@ finally:
     with open(filename, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         # Write the header row
-        writer.writerow(["country_identifier", "country_name", "country_url"])  # Write all the rows at once
+        writer.writerow(["country_identifier", "country_url", "country_name"])  # Write all the rows at once
         writer.writerows(data)
 
 # Close the WebDriver after scraping is done

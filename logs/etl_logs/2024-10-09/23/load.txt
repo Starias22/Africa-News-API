@@ -1,0 +1,4 @@
+[2024-Oct-09 23:31:06] [INFO] Started load process
+[2024-Oct-09 23:31:06] [INFO] Connected to PostgreSQL database
+[2024-Oct-09 23:31:06] [INFO] Read transformed CSV file
+[2024-Oct-09 23:31:11] [INFO] Completed load process
