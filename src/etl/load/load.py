@@ -8,13 +8,7 @@ import sys
 # Add the `src` directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 from src.logs.log import Logger
-
-# Add the src directory to sys.path
-#sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from src.db.database import *
-
-
 
 
 # Utility functions
@@ -39,15 +33,18 @@ def get_or_create_category(session, category_name, logger):
         logger.info(f"Added a new category [{category_name}] to the news category table")
         return new_category
 
-def get_or_create_extractor(session, extractor_name):
+def get_extractor(session, extractor_name):
     extractor = session.query(Extractor).filter_by(extractor_name=extractor_name).first()
-    if extractor:
-        return extractor
-    else:
-        new_extractor = Extractor(extractor_name=extractor_name)
-        session.add(new_extractor)
-        session.commit()
-        return new_extractor
+    return extractor
+
+def get_country(session, country):
+    country = session.query(Country).filter_by(country_name=country).first()
+    return country
+
+def get_language(session, lang_code):
+    language = session.query(Language).filter_by(lang_code=lang_code).first()
+    return language
+
 def get_id_from_table(session, table_name, id_column, filter_columns, filter_values):
     table_mapping = {
         'country': Country,
@@ -67,7 +64,6 @@ def get_id_from_table(session, table_name, id_column, filter_columns, filter_val
     return result[0] if result else None
 
 
-# Function to insert article data
 def insert_article(session, row, logger):
     for key, value in row.items():
         if value == '':
@@ -75,18 +71,30 @@ def insert_article(session, row, logger):
             
     author = get_or_create_author(session, row['author_name'], row.get('author_url'))
     category = get_or_create_category(session, row['category'], logger=logger)
-    extractor = get_or_create_extractor(session, row['extractor'])  # Ensure 'extractor' key exists in row
+    extractor = get_extractor(session, row['extractor']) 
 
     # Fetch country_id and lang_id
-    country_id = get_id_from_table(session, 'country', 'country_id', ['country_name'], [row['country']])
-    lang_id = get_id_from_table(session, 'language', 'lang_id', ['lang_code'], [row['lang']])  # Updated to match your Language table
+    country = get_country(session, row['country'])
+    lang = get_language(session, row['lang'])
+
+    country_id = country.country_id if country else None
+    lang_id = lang.lang_id if lang else None
 
     # Check if the article already exists
     existing_article = session.query(Article).filter_by(
         author_id=author.author_id,
+        category_id=category.category_id,
+        extractor_id=extractor.extractor_id,
+        country_id=country_id,
+        lang_id=lang_id,
         title=row['title'],
         url=row['url'],
-        publication_date=row['publication_date']
+        img_url=row["image_url"],
+        description=row["description"],
+        publication_date=row['publication_date'],
+        content_preview=row['content_preview'],
+        content=row['content'],
+        source=row['source']
     ).first()
 
     if not existing_article:
@@ -108,10 +116,6 @@ def insert_article(session, row, logger):
         )
         session.add(new_article)
         session.commit()
-        logger.info(f"Inserted new article: '{row['title']}'")
-
-# Your existing load and CSV reading functions remain unchanged.
-
 
 def load_csv_to_db(csv_file, logger):
     engine = create_engine('postgresql+psycopg2://starias:my_password@localhost:5432/africa_news_db')
@@ -123,11 +127,11 @@ def load_csv_to_db(csv_file, logger):
         with open(csv_file, 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file, quoting=csv.QUOTE_MINIMAL, escapechar='\\')
             logger.info("Read transformed CSV file")
-            logger.info("Loading data into postgreSQL**********")
+            logger.info("**********Loading data into postgreSQL**********")
             for row in reader:
                 #print(row)  # Debug line
                 insert_article(session, row, logger=logger)
-            logger.info("**********Completed")
+            logger.info("**********Completed**********")
     finally:
         session.close()
         logger.info("Closed PostreSQL session")
@@ -146,7 +150,6 @@ def load(formatted_date=None, formatted_hour=None):
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
     logger = Logger(log_file=log_file)
     logger.info("Started load process")
-    
 
     try:
         csv_files = glob.glob(f'/home/starias/africa_news_api/staging_area/transformed_news/{formatted_date}/{formatted_hour}/*csv')
