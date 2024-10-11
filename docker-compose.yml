@@ -44,216 +44,29 @@ x-environment: &airflow_environment
   - TRAINED_MODELS_PATH=${TRAINED_MODELS_PATH}
   
 services:
-  spark-master:
-    <<: *spark_common_properties
-    container_name: spark-master
-    restart: always
-    ports:
-      - "9090:8080"
-      - "7077:7077"
-    command: bin/spark-class org.apache.spark.deploy.master.Master
-    volumes:
-      - ./trained_models:/opt/trained_models/
-      - ./data/checkpoint/filtered_news/:/opt/airflow/checkpoint/filtered_news/
-      - ./data/checkpoint/processed_news/:/opt/airflow/checkpoint/processed_news/
-      - ./data/checkpoint/available_news/:/opt/airflow/checkpoint/available_news/
-    networks:
-      - backend
-    environment:
-      - TRAINED_MODELS_PATH=${TRAINED_MODELS_PATH}
-      #- SPARK_MODE=master
-      #- SPARK_RPC_AUTHENTICATION_ENABLED=no
-      #- SPARK_RPC_ENCRYPTION_ENABLED=no
-
-  spark-worker1:
-    <<: *spark_common_properties
-    container_name: spark-worker1
-    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
-    depends_on:
-      - spark-master
-    environment: *spark_worker_environment
-    volumes:
-      - ./trained_models:/opt/trained_models
-      - ./nltk_data:/opt/nltk_data/
-      - ./data/checkpoint/filtered_news/:/opt/airflow/checkpoint/filtered_news/
-      - ./data/checkpoint/processed_news/:/opt/airflow/checkpoint/processed_news/
-      - ./data/checkpoint/available_news/:/opt/airflow/checkpoint/available_news/
-  redis:
-    image: redis:latest
-    container_name: redis
-    ports:
-      - "6379:6379"
-    networks:
-      - backend
-    volumes:
-      - ./data/redis:/data
-    restart: always
-  
-  
   postgres:
     restart: always
-    image: postgres:13
+    image: postgres:14
     container_name: postgres
     environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      #POSTGRES_DB: admin
     networks:
       - backend
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
-
-  airflow-flower:
-        image: *airflow_image
-        container_name: airflow-flower
-        restart: always
-        depends_on:
-            - redis
-        environment: *airflow_environment
-        ports:
-            - "5555:5555"
-        command: celery flower
-        networks:
-          - backend
-
-  airflow-init:
-    container_name: airflow-init
-    image: *airflow_image
-    depends_on:
-      - postgres
-    environment: *airflow_environment
-    secrets:
-    - airflow_user
-    - airflow_email
-    - airflow_password
-    - airflow_firstname
-    - airflow_lastname
-    volumes:
-      - ./scripts/airflow-scripts/airflow-init-entrypoint.sh:/entrypoint.sh
-    entrypoint: ["/bin/bash", "/entrypoint.sh"]
-    networks:
-      - backend
-    
-
-  airflow-webserver:
-    restart: always
-    container_name: airflow-webserver
-    image: *airflow_image
-    depends_on:
-      - airflow-init
-    environment: *airflow_environment
-    ports:
-      - "8080:8080"
-    volumes:
-      #- ./airflow/dags:/opt/airflow/dags
-      #- ./trained_models:/opt/trained_models/
-      - ./data/airflow-logs:/opt/airflow/logs
-      #- ./config:/opt/config
-      - ./scripts/airflow-scripts/entrypoint.sh:/entrypoint.sh
-    command: webserver
-    secrets:
-      - smtp_user
-      - smtp_password
-      - smtp_mail_from
-    entrypoint: ["/bin/bash", "/entrypoint.sh"]
-    networks:
-      - backend
-  airflow-scheduler:
-    restart: always
-    container_name: airflow-scheduler 
-    image: *airflow_image
-    depends_on: 
-      - airflow-init
-    environment: *airflow_environment
-    volumes:
-      - ./airflow/dags:/opt/airflow/dags
-      - ./data/airflow-logs:/opt/airflow/logs
-      - ./config:/opt/config
-      - ./src:/opt/src
-      - ./trained_models:/opt/trained_models/
-      - ./scripts/airflow-scripts/entrypoint.sh:/entrypoint.sh   
-    command: scheduler
-    networks:
-      - backend
-    secrets:
-      - smtp_user
-      - smtp_password
-      - smtp_mail_from
-    entrypoint: ["/bin/bash", "/entrypoint.sh"]
-    
-  airflow-worker:
-    container_name: airflow-worker
-    image: *airflow_image
-    depends_on:
-      - airflow-scheduler
-    environment: *airflow_environment
-    networks:
-      - backend
-    restart: always
-    volumes:
-      - ./airflow/dags:/opt/airflow/dags/
-      - ./data/airflow-logs:/opt/airflow/logs
-      - ./config/:/opt/config/
-      - ./src/:/opt/src/
-      #- ./scripts:/opt/scripts/
-      - ./trained_models/:/opt/trained_models/
-      - ./data/checkpoint/filtered_news/:/opt/airflow/checkpoint/filtered_news/
-      - ./data/checkpoint/processed_news/:/opt/airflow/checkpoint/processed_news/
-      - ./data/checkpoint/available_news/:/opt/airflow/checkpoint/available_news/
-      - ./scripts/airflow-scripts/entrypoint.sh:/entrypoint.sh
-    command: celery worker
-    secrets:
-      - smtp_user
-      - smtp_password
-      - smtp_mail_from
-    entrypoint: ["/bin/bash", "/entrypoint.sh"]
-
-  africanewapi-client:
-    restart: always
-    image: starias/newsengine-client:latest
-    container_name: newsengine-client
-    depends_on:
-      - mongodb
-      - spark-master
-    ports:
-      - "5000:5000"
-    volumes:
-      - .:/app  # Mount the current directory to /app in the container
-    environment:
-      - PYTHON_ENV=development
-      - MONGO_DB_URI=${MONGO_DB_URI}
-      #- FLASK_APP=${FLASK_APP}
-      #- FLASK_ENV=development # doesn apply debug mode as expected 
-    networks:
-      - backend
-
-    entrypoint: >
-      flask  --app=app/app.py run --host=0.0.0.0 --port=5000 --debug
+      - /home/starias/africa_news_api/database/init:/docker-entrypoint-initdb.d
 
 networks:
   backend:
     name: backend-network 
     driver: bridge
   
-
 secrets:
   smtp_user:
     file: ./secrets/smtp_user/user.txt
-  smtp_password:
-    file: ./secrets/smtp_user/password.txt
-  smtp_mail_from:
-    file: ./secrets/smtp_user/mail_from.txt
-  airflow_user:
-    file: ./secrets/airflow_user/username.txt
-  airflow_email:
-    file: ./secrets/airflow_user/email.txt
-  airflow_password:
-    file: ./secrets/airflow_user/password.txt
-  airflow_firstname:
-    file: ./secrets/airflow_user/firstname.txt
-  airflow_lastname:
-    file: ./secrets/airflow_user/lastname.txt
 
-volumes:
-  postgres_data:
+#volumes:
+  #postgres_data:
     

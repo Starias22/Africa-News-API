@@ -1,7 +1,7 @@
 -- psql -U starias -d africa_news_db
 -- Create tables.
 -- \include create_tables.sql
-\include africa_news_db_create_tables.sql
+\include create_tables.sql
 
 -- Load extractors
 \COPY extractor(extractor_name, extractor_url, extractor_description ) FROM 'extractor.csv' DELIMITER ',' CSV HEADER;

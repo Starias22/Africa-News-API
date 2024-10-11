@@ -3,3 +3,4 @@ docker
 __pycache__
 *_SUCCESS
 *.crc
+data

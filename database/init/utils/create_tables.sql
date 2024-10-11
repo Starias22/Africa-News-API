@@ -22,7 +22,7 @@ CREATE TABLE public.author (
 	CONSTRAINT author_pk PRIMARY KEY (author_id)
 );
 -- ddl-end --
-ALTER TABLE public.author OWNER TO postgres;
+-- ALTER TABLE public.author OWNER TO postgres;
 -- ddl-end --
 
 -- object: public.country | type: TABLE --
@@ -34,7 +34,7 @@ CREATE TABLE public.country (
 	CONSTRAINT country_pk PRIMARY KEY (country_id)
 );
 -- ddl-end --
-ALTER TABLE public.country OWNER TO postgres;
+-- ALTER TABLE public.country OWNER TO postgres;
 -- ddl-end --
 
 -- object: public.language | type: TABLE --
@@ -46,7 +46,7 @@ CREATE TABLE public.language (
 	CONSTRAINT language_pk PRIMARY KEY (lang_id)
 );
 -- ddl-end --
-ALTER TABLE public.language OWNER TO postgres;
+-- ALTER TABLE public.language OWNER TO postgres;
 -- ddl-end --
 
 -- object: public.category | type: TABLE --
@@ -57,7 +57,7 @@ CREATE TABLE public.category (
 	CONSTRAINT category_pk PRIMARY KEY (category_id)
 );
 -- ddl-end --
-ALTER TABLE public.category OWNER TO postgres;
+-- ALTER TABLE public.category OWNER TO postgres;
 -- ddl-end --
 
 -- object: public.extractor | type: TABLE --
@@ -70,7 +70,7 @@ CREATE TABLE public.extractor (
 	CONSTRAINT extractor_pk PRIMARY KEY (extractor_id)
 );
 -- ddl-end --
-ALTER TABLE public.extractor OWNER TO postgres;
+-- ALTER TABLE public.extractor OWNER TO postgres;
 -- ddl-end --
 
 -- object: public.article | type: TABLE --
@@ -99,7 +99,7 @@ CREATE TABLE public.article (
 	CONSTRAINT article_pk PRIMARY KEY (article_id)
 );
 -- ddl-end --
-ALTER TABLE public.article OWNER TO postgres;
+-- ALTER TABLE public.article OWNER TO postgres;
 -- ddl-end --
 
 -- object: author_fk | type: CONSTRAINT --
@@ -149,7 +149,7 @@ CREATE TABLE public.source (
 	CONSTRAINT source_pk PRIMARY KEY (source_id)
 );
 -- ddl-end --
-ALTER TABLE public.source OWNER TO postgres;
+-- ALTER TABLE public.source OWNER TO postgres;
 -- ddl-end --
 
 -- object: source_fk | type: CONSTRAINT --
