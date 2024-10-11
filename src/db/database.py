@@ -1,13 +1,11 @@
 from sqlalchemy import Column, Integer, String, Date, Text, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
-# uvicorn main:app --reload
-
+from sqlalchemy.orm import declarative_base, relationship
 #app = FastAPI()
 DATABASE_URL = "postgresql+asyncpg://starias:my_password@localhost/africa_news_db"
 
 # Define the SQLAlchemy base
 Base = declarative_base()
+
 
 # Define the Language model
 class Language(Base):
@@ -52,6 +50,11 @@ class Author(Base):
     def to_dict(self):
         return {"id": self.author_id, "name": self.author_name, "URL": self.author_url}
 
+class Extractor(Base):
+    __tablename__ = 'extractor'
+    extractor_id = Column(Integer, primary_key=True)
+    extractor_name = Column(String)
+
 # Define the Article model
 class Article(Base):
     __tablename__ = 'article'
@@ -61,6 +64,7 @@ class Article(Base):
     category_id = Column(Integer, ForeignKey('category.category_id'))
     country_id = Column(Integer, ForeignKey('country.country_id'))
     lang_id = Column(Integer, ForeignKey('language.lang_id'))
+    extractor_id = Column(Integer, ForeignKey('extractor.extractor_id'))
     publication_date = Column(Date)
     title = Column(Text)
     description = Column(Text)
@@ -75,3 +79,5 @@ class Article(Base):
     category = relationship("Category")
     country = relationship("Country")
     language = relationship("Language")
+    extractor = relationship('Extractor')
+    

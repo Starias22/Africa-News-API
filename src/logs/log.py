@@ -11,7 +11,7 @@ class Logger:
         """
         self.log_file = log_file
         self.level = level
-        self.file = open(self.log_file, 'a', encoding='utf-8')  # Open file during initialization
+        self.file = open(self.log_file, 'w', encoding='utf-8')  # Open file during initialization
         self.levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
 
     def _get_timestamp(self):
@@ -65,7 +65,7 @@ class Logger:
         if self.file:
             self.file.close()
 
-# Example usage
+"""# Example usage
 logger = Logger(log_file='app_log.txt')
 
 logger.info('This is an info message.')
@@ -73,3 +73,4 @@ logger.error('An error occurred!')
 logger.debug('Debugging information.')
 logger.warning('This is a warning.')
 logger.critical('Critical system failure!')
+"""

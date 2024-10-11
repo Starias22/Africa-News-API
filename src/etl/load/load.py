@@ -1,139 +1,165 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from datetime import datetime
 import csv
-import psycopg2
-import glob
-from datetime import datetime
-
 import os
+import glob
 import sys
-from datetime import datetime
 # Add the `src` directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 from src.logs.log import Logger
 
+# Add the src directory to sys.path
+#sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Function to retrieve primary key/foreign key from a table with multiple columns
-def get_id_from_table(conn, table_name, key_column, value_columns, values):
-    with conn.cursor() as cur:
-        conditions = " AND ".join([f"{col} = %s" if val is not None else f"{col} IS NULL" for col, val in zip(value_columns, values)])
-        query = f"SELECT {key_column} FROM {table_name} WHERE {conditions};"
-        cur.execute(query, [val for val in values if val is not None])
-        result = cur.fetchone()
-        if result:
-            return result[0]
-        else:
-            return None
+from src.db.database import *
 
-# Function to insert new author if not already present, and return its primary key
-def get_or_create_author(conn, author_name, author_url):
-    existing_id = get_id_from_table(conn, 'author', 'author_id', ['author_name', 'author_url'], [author_name, author_url])
-    if existing_id:
-        return existing_id
+
+
+
+# Utility functions
+def get_or_create_author(session, author_name, author_url):
+    author = session.query(Author).filter_by(author_name=author_name, author_url=author_url).first()
+    if author:
+        return author
     else:
-        with conn.cursor() as cur:
-            insert_query = f"INSERT INTO author (author_name, author_url) VALUES (%s, %s) RETURNING author_id;"
-            cur.execute(insert_query, (author_name, author_url))
-            conn.commit()
-            return cur.fetchone()[0]
-        
+        new_author = Author(author_name=author_name, author_url=author_url)
+        session.add(new_author)
+        session.commit()
+        return new_author
 
-# Updated function to insert article data
-def insert_article(conn, row):
-    # Convert 'NULL' string to None
+def get_or_create_category(session, category_name, logger):
+    category = session.query(Category).filter_by(category_name=category_name).first()
+    if category:
+        return category
+    else:
+        new_category = Category(category_name=category_name)
+        session.add(new_category)
+        session.commit()
+        logger.info(f"Added a new category [{category_name}] to the news category table")
+        return new_category
+
+def get_or_create_extractor(session, extractor_name):
+    extractor = session.query(Extractor).filter_by(extractor_name=extractor_name).first()
+    if extractor:
+        return extractor
+    else:
+        new_extractor = Extractor(extractor_name=extractor_name)
+        session.add(new_extractor)
+        session.commit()
+        return new_extractor
+def get_id_from_table(session, table_name, id_column, filter_columns, filter_values):
+    table_mapping = {
+        'country': Country,
+        'language': Language
+    }
+
+    if table_name not in table_mapping:
+        raise ValueError(f"Table {table_name} is not recognized.")
+
+    model_class = table_mapping[table_name]
+
+    query = session.query(getattr(model_class, id_column))
+    for column, value in zip(filter_columns, filter_values):
+        query = query.filter(getattr(model_class, column) == value)
+
+    result = query.first()
+    return result[0] if result else None
+
+
+# Function to insert article data
+def insert_article(session, row, logger):
     for key, value in row.items():
         if value == '':
             row[key] = None
+            
+    author = get_or_create_author(session, row['author_name'], row.get('author_url'))
+    category = get_or_create_category(session, row['category'], logger=logger)
+    extractor = get_or_create_extractor(session, row['extractor'])  # Ensure 'extractor' key exists in row
 
-    with conn.cursor() as cur:
-        # Retrieve foreign keys from the related tables
-        author_id = get_or_create_author(conn, row['author_name'], row.get('author_url'))
-        country_id = get_id_from_table(conn, 'country', 'country_id', ['country_name'], [row['country']])
-        lang_id = get_id_from_table(conn, 'language', 'lang_id', ['lang_code'], [row['lang']])
-        category_id = get_id_from_table(conn, 'category', 'category_id', ['category_name'], [row['category']])
-        extractor_id = get_id_from_table(conn, 'extractor', 'extractor_id', ['extractor_name'], ['jeuneafrique'])
+    # Fetch country_id and lang_id
+    country_id = get_id_from_table(session, 'country', 'country_id', ['country_name'], [row['country']])
+    lang_id = get_id_from_table(session, 'language', 'lang_id', ['lang_code'], [row['lang']])  # Updated to match your Language table
 
-        # Insert article data into the article table
-        article_query = """
-            INSERT INTO article (author_id, country_id, lang_id, category_id, extractor_id, publication_date, title, description, img_url, url, content_preview, content, source)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-        """
-        cur.execute(article_query, (
-            author_id,
-            country_id,
-            lang_id,
-            category_id,
-            extractor_id,
-            row['publication_date'],
-            row['title'],
-            row['description'],
-            row['image_url'],
-            row['url'],
-            row['content_preview'],
-            row['content'],
-            row['source']
-        ))
-        conn.commit()
+    # Check if the article already exists
+    existing_article = session.query(Article).filter_by(
+        author_id=author.author_id,
+        title=row['title'],
+        url=row['url'],
+        publication_date=row['publication_date']
+    ).first()
 
-# Updated CSV load function to include author_url
-def load_csv_to_db(csv_file):
+    if not existing_article:
+        
+        new_article = Article(
+            author_id=author.author_id,
+            country_id=country_id,  # Use country_id
+            lang_id=lang_id,        # Use lang_id
+            category_id=category.category_id,
+            extractor_id=extractor.extractor_id,
+            publication_date=row['publication_date'],
+            title=row['title'],
+            description=row['description'],
+            img_url=row['image_url'],
+            url=row['url'],
+            content_preview=row['content_preview'],
+            content=row['content'],
+            source=row['source']
+        )
+        session.add(new_article)
+        session.commit()
+        logger.info(f"Inserted new article: '{row['title']}'")
 
-    
-    # Connect to your PostgreSQL database
-    conn = psycopg2.connect(
-        dbname="africa_news_db",
-        user="starias",
-        password="my_password",
-        host="localhost",
-        port=5432
-    )
-    logger.info("Connected to PostgreSQL database")
+# Your existing load and CSV reading functions remain unchanged.
 
+
+def load_csv_to_db(csv_file, logger):
+    engine = create_engine('postgresql+psycopg2://starias:my_password@localhost:5432/africa_news_db')
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    logger.info("Connected to PostgreSQL ")
     try:
-        # Read the CSV file
         with open(csv_file, 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file, quoting=csv.QUOTE_MINIMAL, escapechar='\\')
             logger.info("Read transformed CSV file")
+            logger.info("Loading data into postgreSQL**********")
             for row in reader:
-                insert_article(conn, row)
+                #print(row)  # Debug line
+                insert_article(session, row, logger=logger)
+            logger.info("**********Completed")
     finally:
-        conn.close()
+        session.close()
+        logger.info("Closed PostreSQL session")
     
+
+
+# Function to initiate the load process
+def load(formatted_date=None, formatted_hour=None):
+    
+    if formatted_date is None and formatted_hour is None:
+        now = datetime.now()
+        formatted_date = now.strftime('%Y-%m-%d')
+        formatted_hour = now.strftime('%H')
+    
+    log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/load.txt"
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    logger = Logger(log_file=log_file)
+    logger.info("Started load process")
+    
+
+    try:
+        csv_files = glob.glob(f'/home/starias/africa_news_api/staging_area/transformed_news/{formatted_date}/{formatted_hour}/*csv')
+        if not csv_files:
+            logger.error(f"No CSV files found for the date {formatted_date} and hour {formatted_hour}.")
+        
+        csv_file = csv_files[0]
+        load_csv_to_db(csv_file, logger=logger)
+    except FileNotFoundError as e:
+        logger.error(e)
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
     logger.info("Completed load process")
 
- # Get the current datetime
-now = datetime.now()
-
-import os
-# Get the current datetime
-now = datetime.now()
-        
-# Extract the date in 'YYYY-MM-DD' format and the hour as a two-digit string
-formatted_date = now.strftime('%Y-%m-%d')
-formatted_hour = now.strftime('%H') 
-        
-log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/load.txt"
-os.makedirs(os.path.dirname(log_file), exist_ok=True)
-
-logger =Logger(log_file=log_file)
-
-logger.info("Started load process")
-# Ensure the directory exists; create if not
-
-
-# Try to get the CSV file with the specified pattern
-try:
-    csv_files = glob.glob(f'/home/starias/africa_news_api/staging_area/transformed_news/{formatted_date}/{formatted_hour}/*csv')
-    # Check if any CSV files were found
-    if not csv_files:
-        raise FileNotFoundError(f"No CSV files found for the date {formatted_date} and hour {formatted_hour}.")
-    
-    csv_file = csv_files[0]
-    
-    #print(f"Loading CSV file: {csv_file}")
-
-    # Run the script
-    load_csv_to_db(csv_file)
-
-except FileNotFoundError as e:
-    print(e)  # Handle the file not found error gracefully
-except Exception as e:
-    print(f"An error occurred: {e}")  # Handle any other exceptions
+# Example usage
+load(formatted_date="2024-10-09", formatted_hour="06")

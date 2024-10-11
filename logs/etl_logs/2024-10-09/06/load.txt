@@ -1,0 +1,7 @@
+[2024-Oct-11 06:17:30] [INFO] Started load process
+[2024-Oct-11 06:17:30] [INFO] Connected to PostgreSQL 
+[2024-Oct-11 06:17:30] [INFO] Read transformed CSV file
+[2024-Oct-11 06:17:30] [INFO] Loading data into postgreSQL**********
+[2024-Oct-11 06:17:36] [INFO] **********Completed
+[2024-Oct-11 06:17:36] [INFO] Closed PostreSQL session
+[2024-Oct-11 06:17:36] [INFO] Completed load process
