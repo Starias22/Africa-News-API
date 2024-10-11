@@ -81,7 +81,7 @@ CREATE TABLE public.article (
 	category_id smallint NOT NULL,
 	extractor_id smallint NOT NULL,
 	country_id smallint NOT NULL,
-	source_id integer,
+	source_id integer NOT NULL,
 	lang_id smallint NOT NULL,
 	publication_date date,
 	title text,

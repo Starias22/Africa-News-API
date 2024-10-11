@@ -1,5 +1,6 @@
-extractor_name, extractor_description, extractor_url
-jeuneafrique,,https://www.jeuneafrique.com/
-beninwebtv,,https://beninwebtv.com/
-GoogleNewsAPI,,https://news.google.com/
-NewsAPI,,https://www.newsapi.ai/
+extractor_name,extractor_url,extractor_description
+beninwebtv,https://beninwebtv.com/,
+jeuneafrique,https://www.jeuneafrique.com/,
+africa-confidential,https://www.africa-confidential.com/,
+google_news,https://news.google.com/,
+newsapi,https://www.newsapi.ai/,

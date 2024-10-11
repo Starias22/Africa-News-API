@@ -1,7 +1,7 @@
-[2024-Oct-11 06:53:56] [INFO] Started load process
-[2024-Oct-11 06:53:56] [INFO] Connected to PostgreSQL 
-[2024-Oct-11 06:53:56] [INFO] Read transformed CSV file
-[2024-Oct-11 06:53:56] [INFO] **********Loading data into postgreSQL**********
-[2024-Oct-11 06:54:13] [INFO] **********Completed**********
-[2024-Oct-11 06:54:13] [INFO] Closed PostreSQL session
-[2024-Oct-11 06:54:13] [INFO] Completed load process
+[2024-Oct-11 15:52:37] [INFO] Started load process
+[2024-Oct-11 15:52:37] [INFO] Connected to PostgreSQL 
+[2024-Oct-11 15:52:37] [INFO] Read transformed CSV file
+[2024-Oct-11 15:52:37] [INFO] **********Loading data into postgreSQL**********
+[2024-Oct-11 15:52:53] [INFO] **********Completed**********
+[2024-Oct-11 15:52:53] [INFO] Closed PostreSQL session
+[2024-Oct-11 15:52:53] [INFO] Completed load process

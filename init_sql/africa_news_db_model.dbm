@@ -125,7 +125,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="country_id" not-null="true">
 		<type name="smallint" length="0"/>
 	</column>
-	<column name="source_id">
+	<column name="source_id" not-null="true">
 		<type name="integer" length="0"/>
 	</column>
 	<column name="lang_id" not-null="true">
@@ -162,6 +162,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<object name="country_id_country" index="17"/>
 		<object name="extractor_id_extractor" index="16"/>
 		<object name="lang_id_language" index="15"/>
+		<object name="source_id_source" index="19"/>
 	</customidxs>
 
 	<customidxs object-type="constraint">
@@ -170,6 +171,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<object name="country_fk" index="4"/>
 		<object name="extractor_fk" index="3"/>
 		<object name="language_fk" index="2"/>
+		<object name="source_fk" index="6"/>
 	</customidxs>
 </table>
 

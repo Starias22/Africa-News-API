@@ -4,7 +4,7 @@
 \include africa_news_db_create_tables.sql
 
 -- Load extractors
-\COPY extractor(extractor_name, extractor_description, extractor_url) FROM 'extractor.csv' DELIMITER ',' CSV HEADER;
+\COPY extractor(extractor_name, extractor_url, extractor_description ) FROM 'extractor.csv' DELIMITER ',' CSV HEADER;
 
 -- Load languages
 \COPY language(lang_name, lang_code) FROM 'language.csv' DELIMITER ',' CSV HEADER;
