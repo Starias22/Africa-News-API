@@ -21,6 +21,19 @@ def get_or_create_author(session, author_name, author_url):
         session.add(new_author)
         session.commit()
         return new_author
+    
+def get_or_create_source(session, source_name):
+    source = session.query(Source).filter_by(source_name=source_name).first()
+    #print(source)
+    if source:
+        #print("YEEEEEH")
+        return source
+    else:
+        new_source = Source(source_name=source_name)
+        session.add(new_source)
+        session.commit()
+        #print(new_source)
+        return new_source
 
 def get_or_create_category(session, category_name, logger):
     category = session.query(Category).filter_by(category_name=category_name).first()
@@ -45,23 +58,7 @@ def get_language(session, lang_code):
     language = session.query(Language).filter_by(lang_code=lang_code).first()
     return language
 
-def get_id_from_table(session, table_name, id_column, filter_columns, filter_values):
-    table_mapping = {
-        'country': Country,
-        'language': Language
-    }
 
-    if table_name not in table_mapping:
-        raise ValueError(f"Table {table_name} is not recognized.")
-
-    model_class = table_mapping[table_name]
-
-    query = session.query(getattr(model_class, id_column))
-    for column, value in zip(filter_columns, filter_values):
-        query = query.filter(getattr(model_class, column) == value)
-
-    result = query.first()
-    return result[0] if result else None
 
 
 def insert_article(session, row, logger):
@@ -72,6 +69,8 @@ def insert_article(session, row, logger):
     author = get_or_create_author(session, row['author_name'], row.get('author_url'))
     category = get_or_create_category(session, row['category'], logger=logger)
     extractor = get_extractor(session, row['extractor']) 
+    source = get_or_create_source(session, row['source'])
+    
 
     # Fetch country_id and lang_id
     country = get_country(session, row['country'])
@@ -79,6 +78,7 @@ def insert_article(session, row, logger):
 
     country_id = country.country_id if country else None
     lang_id = lang.lang_id if lang else None
+    #source_id = source.source_id if source else None
 
     # Check if the article already exists
     existing_article = session.query(Article).filter_by(
@@ -87,14 +87,14 @@ def insert_article(session, row, logger):
         extractor_id=extractor.extractor_id,
         country_id=country_id,
         lang_id=lang_id,
+        source_id=source.source_id,
         title=row['title'],
         url=row['url'],
         img_url=row["image_url"],
         description=row["description"],
         publication_date=row['publication_date'],
         content_preview=row['content_preview'],
-        content=row['content'],
-        source=row['source']
+        content=row['content']
     ).first()
 
     if not existing_article:
@@ -105,6 +105,7 @@ def insert_article(session, row, logger):
             lang_id=lang_id,        # Use lang_id
             category_id=category.category_id,
             extractor_id=extractor.extractor_id,
+            source_id=source.source_id,
             publication_date=row['publication_date'],
             title=row['title'],
             description=row['description'],
@@ -112,7 +113,6 @@ def insert_article(session, row, logger):
             url=row['url'],
             content_preview=row['content_preview'],
             content=row['content'],
-            source=row['source']
         )
         session.add(new_article)
         session.commit()

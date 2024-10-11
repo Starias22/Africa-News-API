@@ -55,6 +55,11 @@ class Extractor(Base):
     extractor_id = Column(Integer, primary_key=True)
     extractor_name = Column(String)
 
+class Source(Base):
+    __tablename__ = 'source'
+    source_id = Column(Integer, primary_key=True)
+    source_name = Column(String)
+
 # Define the Article model
 class Article(Base):
     __tablename__ = 'article'
@@ -65,6 +70,7 @@ class Article(Base):
     country_id = Column(Integer, ForeignKey('country.country_id'))
     lang_id = Column(Integer, ForeignKey('language.lang_id'))
     extractor_id = Column(Integer, ForeignKey('extractor.extractor_id'))
+    source_id = Column(Integer, ForeignKey('source.source_id'))
     publication_date = Column(Date)
     title = Column(Text)
     description = Column(Text)
@@ -72,7 +78,7 @@ class Article(Base):
     url = Column(Text)
     content_preview = Column(Text)
     content = Column(Text)
-    source = Column(String)
+    
 
     # Relationships
     author = relationship("Author")
@@ -80,4 +86,5 @@ class Article(Base):
     country = relationship("Country")
     language = relationship("Language")
     extractor = relationship('Extractor')
+    source = relationship('Source')
     

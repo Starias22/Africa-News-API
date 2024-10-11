@@ -91,7 +91,8 @@ async def get_articles(
                 joinedload(Article.author),
                 joinedload(Article.category),
                 joinedload(Article.country),
-                joinedload(Article.language)
+                joinedload(Article.language),
+                joinedload(Article.source),
             )
         )
 
@@ -115,7 +116,7 @@ async def get_articles(
             query = query.join(Article.author).filter(func.lower(Author.author_name) == func.lower(author))
         
         if source:
-            query = query.filter(func.lower(Article.source) == func.lower(source))
+            query = query.join(Article.source).filter(func.lower(Source.source_name) == func.lower(source))
 
         # Filter by publication date range
         if start_date and end_date:
@@ -129,7 +130,6 @@ async def get_articles(
         # Apply ordering
         valid_order_by_fields = {
             "publication_date": Article.publication_date,
-            "source": Article.source
         }
 
         if order_by not in valid_order_by_fields:
@@ -161,6 +161,10 @@ async def get_articles(
                     "id": article.category.category_id,
                     "name": article.category.category_name
                 },
+                "source": {
+                    "id": article.source.source_id,
+                    "name": article.source.source_name
+                },
                 "country": {
                     "id": article.country.country_id,
                     "name": article.country.country_name,
@@ -178,7 +182,7 @@ async def get_articles(
                 "url": article.url,
                 "content_preview": article.content_preview,
                 "content": article.content,
-                "source": article.source,
+                #"source": article.source,
             } for article in articles
         ]
 
