@@ -1,10 +1,14 @@
 from selenium.webdriver.common.by import By
-from news_scraping import NewsScraper
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
-from news_scraping import NewsScraper
 from urllib.parse import urlparse
 import csv
+
+from pathlib import Path
+import sys
+src_path = Path(__file__).resolve().parents[2]
+sys.path.append(str(src_path))
+from src.etl.extract.scrapers.news_scraping import NewsScraper
 
 
 """# Initialize an empty list to store the rows from the CSV file

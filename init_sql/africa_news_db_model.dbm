@@ -3,7 +3,7 @@
 CAUTION: Do not modify this file unless you know what you are doing.
  Unexpected results may occur if the code is changed deliberately.
 -->
-<dbmodel pgmodeler-ver="0.9.4" use-changelog="false" last-position="0,6" last-zoom="1" max-obj-count="7"
+<dbmodel pgmodeler-ver="0.9.4" use-changelog="false" last-position="13,0" last-zoom="1" max-obj-count="8"
 	 default-schema="public" default-owner="postgres"
 	 layers="Default layer"
 	 active-layers="0"
@@ -19,7 +19,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="author" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="220" y="80"/>
+	<position x="140" y="160"/>
 	<column name="author_id" not-null="true">
 		<type name="serial" length="0"/>
 	</column>
@@ -37,7 +37,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="country" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="220" y="440"/>
+	<position x="140" y="540"/>
 	<column name="country_id" not-null="true">
 		<type name="smallserial" length="0"/>
 	</column>
@@ -55,7 +55,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="language" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1220" y="80"/>
+	<position x="1260" y="180"/>
 	<column name="lang_id" not-null="true">
 		<type name="smallserial" length="0"/>
 	</column>
@@ -73,7 +73,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="category" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="680" y="700"/>
+	<position x="680" y="800"/>
 	<column name="category_id" not-null="true">
 		<type name="smallserial" length="0"/>
 	</column>
@@ -88,7 +88,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="extractor" layers="0" collapse-mode="2" max-obj-count="4" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="1240" y="400"/>
+	<position x="1240" y="480"/>
 	<column name="extractor_id" not-null="true">
 		<type name="smallserial" length="0"/>
 	</column>
@@ -106,10 +106,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</constraint>
 </table>
 
-<table name="article" layers="0" collapse-mode="2" max-obj-count="22" z-value="0">
+<table name="article" layers="0" collapse-mode="2" max-obj-count="24" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="700" y="60"/>
+	<position x="680" y="200"/>
 	<column name="article_id" not-null="true">
 		<type name="serial" length="0"/>
 	</column>
@@ -124,6 +124,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="country_id" not-null="true">
 		<type name="smallint" length="0"/>
+	</column>
+	<column name="source_id">
+		<type name="integer" length="0"/>
 	</column>
 	<column name="lang_id" not-null="true">
 		<type name="smallint" length="0"/>
@@ -149,12 +152,25 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="content">
 		<type name="text" length="0"/>
 	</column>
-	<column name="source">
-		<type name="varchar" length="100"/>
-	</column>
 	<constraint name="article_pk" type="pk-constr" table="public.article">
 		<columns names="article_id" ref-type="src-columns"/>
 	</constraint>
+
+	<customidxs object-type="column">
+		<object name="author_id_author" index="14"/>
+		<object name="category_id_category" index="18"/>
+		<object name="country_id_country" index="17"/>
+		<object name="extractor_id_extractor" index="16"/>
+		<object name="lang_id_language" index="15"/>
+	</customidxs>
+
+	<customidxs object-type="constraint">
+		<object name="author_fk" index="1"/>
+		<object name="category_fk" index="5"/>
+		<object name="country_fk" index="4"/>
+		<object name="extractor_fk" index="3"/>
+		<object name="language_fk" index="2"/>
+	</customidxs>
 </table>
 
 <relationship name="author_has_many_article" type="rel1n" layers="0"
@@ -203,7 +219,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 custom-color="#348d31"
 	 src-table="public.country"
 	 dst-table="public.article"
-	 src-required="false" dst-required="false"/>
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="-7.33965" y="-23.2052"/>
+	</label>
+</relationship>
 
 <relationship name="category_has_many_article" type="rel1n" layers="0"
 	 src-col-pattern="{sc}_{st}"
@@ -221,5 +241,33 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <genericsql name="africa_news_db_create_tables">
 	<definition><![CDATA[dd]]></definition>
 </genericsql>
+
+<table name="source" layers="0" collapse-mode="2" max-obj-count="2" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="700" y="20"/>
+	<column name="source_id" not-null="true">
+		<type name="serial" length="0"/>
+	</column>
+	<column name="source_name">
+		<type name="varchar" length="100"/>
+	</column>
+	<constraint name="source_pk" type="pk-constr" table="public.source">
+		<columns names="source_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<relationship name="source_has_many_article" type="rel1n" layers="0"
+	 src-col-pattern="{sc}_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#f65320"
+	 src-table="public.source"
+	 dst-table="public.article"
+	 src-required="false" dst-required="false">
+	<label ref-type="name-label">
+		<position x="13.7075" y="-36.3323"/>
+	</label>
+</relationship>
 
 </dbmodel>

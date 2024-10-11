@@ -7,6 +7,7 @@ import csv
 import os
 import sys
 from datetime import datetime
+from selenium.webdriver.chrome.options import Options as ChromeOptions
 # Add the `src` directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../..')))
 from src.logs.log import Logger
@@ -57,6 +58,16 @@ class NewsScraper:
 
         self.logger.info(f"Got countries data (names and URLs) from countries CSV file:{countries_csv_file}")
 
+        # Set up Chrome options for headless mode
+        #chrome_options = ChromeOptions()
+        #chrome_options.add_argument("--headless")  # Run in headless mode
+        #chrome_options.add_argument("--no-sandbox")
+        #chrome_options.add_argument("--disable-dev-shm-usage")
+        #chrome_options.add_argument("--no-startup-window")
+
+
+        # Initialize the WebDriver with the options
+        #self.driver = webdriver.Chrome(options=chrome_options)
 
         # Initialize the WebDriver
         self.driver = webdriver.Chrome()  # You can specify other browsers like Firefox

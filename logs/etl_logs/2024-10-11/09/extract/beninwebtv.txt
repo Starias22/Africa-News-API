@@ -1,0 +1,3 @@
+[2024-Oct-11 09:14:05] [INFO] Started beninwebtv extractor
+[2024-Oct-11 09:14:05] [INFO] Written header to CSV file: /home/starias/africa_news_api/staging_area/raw_news/2024-10-11/09/beninwebtv.csv
+[2024-Oct-11 09:14:05] [INFO] Got countries data (names and URLs) from countries CSV file:/home/starias/africa_news_api/news_countries/beninwebtv_news_countries.csv

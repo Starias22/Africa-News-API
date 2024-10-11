@@ -77,10 +77,11 @@ ALTER TABLE public.extractor OWNER TO postgres;
 -- DROP TABLE IF EXISTS public.article CASCADE;
 CREATE TABLE public.article (
 	article_id serial NOT NULL,
-	author_id integer NOT NULL ,
+	author_id integer NOT NULL,
 	category_id smallint NOT NULL,
 	extractor_id smallint NOT NULL,
 	country_id smallint NOT NULL,
+	source_id integer,
 	lang_id smallint NOT NULL,
 	publication_date date,
 	title text,
@@ -89,12 +90,12 @@ CREATE TABLE public.article (
 	url text,
 	content_preview text,
 	content text,
-	source varchar(100),
 	author_id_author integer,
 	lang_id_language smallint,
 	extractor_id_extractor smallint,
 	country_id_country smallint,
 	category_id_category smallint,
+	source_id_source integer,
 	CONSTRAINT article_pk PRIMARY KEY (article_id)
 );
 -- ddl-end --
@@ -105,39 +106,57 @@ ALTER TABLE public.article OWNER TO postgres;
 -- ALTER TABLE public.article DROP CONSTRAINT IF EXISTS author_fk CASCADE;
 ALTER TABLE public.article ADD CONSTRAINT author_fk FOREIGN KEY (author_id_author)
 REFERENCES public.author (author_id) MATCH FULL
-ON DELETE CASCADE ON UPDATE CASCADE;
+ON DELETE SET NULL ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: language_fk | type: CONSTRAINT --
 -- ALTER TABLE public.article DROP CONSTRAINT IF EXISTS language_fk CASCADE;
 ALTER TABLE public.article ADD CONSTRAINT language_fk FOREIGN KEY (lang_id_language)
 REFERENCES public.language (lang_id) MATCH FULL
-ON DELETE CASCADE ON UPDATE CASCADE;
+ON DELETE SET NULL ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: extractor_fk | type: CONSTRAINT --
 -- ALTER TABLE public.article DROP CONSTRAINT IF EXISTS extractor_fk CASCADE;
 ALTER TABLE public.article ADD CONSTRAINT extractor_fk FOREIGN KEY (extractor_id_extractor)
 REFERENCES public.extractor (extractor_id) MATCH FULL
-ON DELETE CASCADE ON UPDATE CASCADE;
+ON DELETE SET NULL ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: country_fk | type: CONSTRAINT --
 -- ALTER TABLE public.article DROP CONSTRAINT IF EXISTS country_fk CASCADE;
 ALTER TABLE public.article ADD CONSTRAINT country_fk FOREIGN KEY (country_id_country)
 REFERENCES public.country (country_id) MATCH FULL
-ON DELETE CASCADE ON UPDATE CASCADE;
+ON DELETE SET NULL ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: category_fk | type: CONSTRAINT --
 -- ALTER TABLE public.article DROP CONSTRAINT IF EXISTS category_fk CASCADE;
 ALTER TABLE public.article ADD CONSTRAINT category_fk FOREIGN KEY (category_id_category)
 REFERENCES public.category (category_id) MATCH FULL
-ON DELETE CASCADE ON UPDATE CASCADE;
+ON DELETE SET NULL ON UPDATE CASCADE;
 -- ddl-end --
 
 -- object: africa_news_db_create_tables | type: Generic SQL Object --
 -- dd
+-- ddl-end --
+
+-- object: public.source | type: TABLE --
+-- DROP TABLE IF EXISTS public.source CASCADE;
+CREATE TABLE public.source (
+	source_id serial NOT NULL,
+	source_name varchar(100),
+	CONSTRAINT source_pk PRIMARY KEY (source_id)
+);
+-- ddl-end --
+ALTER TABLE public.source OWNER TO postgres;
+-- ddl-end --
+
+-- object: source_fk | type: CONSTRAINT --
+-- ALTER TABLE public.article DROP CONSTRAINT IF EXISTS source_fk CASCADE;
+ALTER TABLE public.article ADD CONSTRAINT source_fk FOREIGN KEY (source_id_source)
+REFERENCES public.source (source_id) MATCH FULL
+ON DELETE SET NULL ON UPDATE CASCADE;
 -- ddl-end --
 
 

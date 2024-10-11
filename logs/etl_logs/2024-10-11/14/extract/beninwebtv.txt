@@ -1,0 +1,9 @@
+[2024-Oct-11 14:07:57] [INFO] Started beninwebtv extractor
+[2024-Oct-11 14:07:57] [INFO] Written header to CSV file: /home/starias/africa_news_api/staging_area/raw_news/2024-10-11/14/beninwebtv.csv
+[2024-Oct-11 14:07:57] [INFO] Got countries data (names and URLs) from countries CSV file:/home/starias/africa_news_api/news_countries/beninwebtv_news_countries.csv
+[2024-Oct-11 14:07:58] [INFO] Innitialized web driver
+[2024-Oct-11 14:07:58] [INFO] Scraping news for 55 countries
+[2024-Oct-11 14:07:58] [INFO] 			Bénin  [1/55]
+[2024-Oct-11 14:07:59] [INFO] 			Burkina Faso  [2/55]
+[2024-Oct-11 14:08:00] [INFO] 			Cap-Vert  [3/55]
+[2024-Oct-11 14:08:01] [INFO] 			Côte d’Ivoire  [4/55]
