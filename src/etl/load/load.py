@@ -9,6 +9,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 from src.logs.log import Logger
 from src.db.database import *
+from src.config.config import ETL_LOGS_PATH, STAGING_AREA_PATH
 
 
 # Utility functions
@@ -118,7 +119,8 @@ def insert_article(session, row, logger):
         session.commit()
 
 def load_csv_to_db(csv_file, logger):
-    engine = create_engine('postgresql+psycopg2://starias:my_password@localhost:5432/africa_news_db')
+    engine = create_engine('postgresql+psycopg2://starias:my_password@postgres:5432/africa_news_db')
+    # engine = create_engine('postgresql+psycopg2://starias:my_password@localhost:5432/africa_news_db')
     Session = sessionmaker(bind=engine)
     session = Session()
 
@@ -146,13 +148,14 @@ def load(formatted_date=None, formatted_hour=None):
         formatted_date = now.strftime('%Y-%m-%d')
         formatted_hour = now.strftime('%H')
     
-    log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/load.txt"
+    log_file = f"{ETL_LOGS_PATH}/{formatted_date}/{formatted_hour}/load.txt"
+    #log_file = f"{ETL_LOGS_PATH}/{formatted_date}/{formatted_hour}/transform.txt"
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
     logger = Logger(log_file=log_file)
     logger.info("Started load process")
 
     try:
-        csv_files = glob.glob(f'/home/starias/africa_news_api/staging_area/transformed_news/{formatted_date}/{formatted_hour}/*csv')
+        csv_files = glob.glob(f'/{STAGING_AREA_PATH}/transformed_news/{formatted_date}/{formatted_hour}/*csv')
         if not csv_files:
             logger.error(f"No CSV files found for the date {formatted_date} and hour {formatted_hour}.")
         
@@ -165,4 +168,5 @@ def load(formatted_date=None, formatted_hour=None):
     logger.info("Completed load process")
 
 # Example usage
-load(formatted_date="2024-10-09", formatted_hour="06")
+if __name__ == "__main__":
+    load(formatted_date="2024-10-09", formatted_hour="06")

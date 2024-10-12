@@ -13,7 +13,7 @@ sys.path.append(str(src_path))
 from src.config.config import SRC_PATH, SPARK_CONNECTION_ID, SPARK_KAFKA_PACKAGES
 from src.etl.transform.transform import transform
 #a=5
-#from src.etl.load import load
+from src.etl.load.load import load
 
 import pendulum
 # Add 'src' directory to the Python path
@@ -70,17 +70,14 @@ transform_task = SparkSubmitOperator(
     conn_id=SPARK_CONNECTION_ID,
     application=f'{SRC_PATH}/etl/transform/transform.py',  
     dag=dag,
-    #python_callable=transform,
-    #packages=SPARK_KAFKA_PACKAGES,
     deploy_mode="client",
 )
 
 
-"""load_task = PythonOperator(
-   task_id='transform',
+load_task = PythonOperator(
+   task_id='load',
     python_callable=load,
     dag=dag,
-)"""
+)
 
-extract_task >> transform_task 
-#>> load_task
+extract_task >> transform_task >> load_task
