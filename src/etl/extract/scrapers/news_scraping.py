@@ -11,6 +11,8 @@ from selenium.webdriver.chrome.options import Options as ChromeOptions
 # Add the `src` directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../..')))
 from src.logs.log import Logger
+from src.config.config import ETL_LOGS_PATH, STAGING_AREA_PATH
+
 
 class NewsScraper:
 
@@ -31,18 +33,26 @@ class NewsScraper:
         formatted_date = now.strftime('%Y-%m-%d')
         formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
 
-        log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/extract/{extractor}.txt"
+        print("Hello everyone")
+
+        log_file = f"{ETL_LOGS_PATH}/{formatted_date}/{formatted_hour}/extract/{extractor}.txt"
+        print(log_file)
+        #log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/extract/{extractor}.txt"
+
         # Ensure the directory exists; create if not
         os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        print("Hello everyone")
 
         self.logger = Logger(log_file=log_file)
         self.logger.info(f"Started {extractor} extractor")
         
 
         
-        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/{extractor}.csv'
+        filepath = f'{STAGING_AREA_PATH}/raw_news/{formatted_date}/{formatted_hour}/{extractor}.csv'
+        print(filepath)
         # Ensure the directory exists; create if not
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        print("*******************")
 
         self.file= open(filepath, mode='w', newline='', encoding='utf-8')
         
@@ -54,23 +64,29 @@ class NewsScraper:
         # Write the header to the file
         self.writer.writeheader()
         self.logger.info(f"Written header to CSV file: {filepath}")
-        self.countries_data= self.get_countries_data(countries_csv_file)
+        self.countries_data= self.get_countries_data(countries_csv_file)[:3]
 
         self.logger.info(f"Got countries data (names and URLs) from countries CSV file:{countries_csv_file}")
 
         # Set up Chrome options for headless mode
-        #chrome_options = ChromeOptions()
+        chrome_options = ChromeOptions()
         #chrome_options.add_argument("--headless")  # Run in headless mode
         #chrome_options.add_argument("--no-sandbox")
         #chrome_options.add_argument("--disable-dev-shm-usage")
         #chrome_options.add_argument("--no-startup-window")
 
+        # Set Chrome options
+        #chrome_options = Options()
+        chrome_options.add_argument("--headless")  # Ensure Chrome runs in headless mode
+        chrome_options.add_argument("--no-sandbox")  # Bypass OS security model
+        chrome_options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
+        chrome_options.add_argument("--disable-gpu")  # Disable GPU for headless environments
 
         # Initialize the WebDriver with the options
-        #self.driver = webdriver.Chrome(options=chrome_options)
+        self.driver = webdriver.Chrome(options=chrome_options)
 
         # Initialize the WebDriver
-        self.driver = webdriver.Chrome()  # You can specify other browsers like Firefox
+        #self.driver = webdriver.Chrome()  # You can specify other browsers like Firefox
         self.wait = WebDriverWait(self.driver, 30)  # Explicit wait
         self.logger.info(f"Innitialized web driver")
         self.current_page = 1
@@ -94,6 +110,8 @@ class NewsScraper:
             # Read the remaining rows and append them to the list
             for row in reader:
                 countries_data.append(row)
+        print(countries_data)
+        
         return countries_data
 
     def get_news_items(self):

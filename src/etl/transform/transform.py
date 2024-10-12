@@ -2,7 +2,6 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import lower, udf, when, col
 from pyspark.sql.types import StringType
 import unidecode
-from datetime import datetime
 from pyspark.sql import functions as F
 
 import os
@@ -11,6 +10,7 @@ from datetime import datetime
 # Add the `src` directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 from src.logs.log import Logger
+from src.config.config import ETL_LOGS_PATH, STAGING_AREA_PATH
 
 country_translation = {
         "afrique du sud": "south africa",
@@ -76,7 +76,8 @@ def transform(formatted_date=None, formatted_hour=None, filter_recents=True):
         formatted_hour = now.strftime('%H') #"22" # now.strftime('%H')  # This will be '02' if the hour is 2
 
 
-    log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/transform.txt"
+    #log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/transform.txt"
+    log_file = f"{ETL_LOGS_PATH}/{formatted_date}/{formatted_hour}/transform.txt"
     # Ensure the directory exists; create if not
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
@@ -95,6 +96,7 @@ def transform(formatted_date=None, formatted_hour=None, filter_recents=True):
     # Load all CSV files in the directory (use wildcard to match file names)
 
     filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/*.csv'
+    
 
 
     df = spark.read \
@@ -246,7 +248,8 @@ def transform(formatted_date=None, formatted_hour=None, filter_recents=True):
 
     logger.info("Completed transformations")
         
-    filepath = f'/home/starias/africa_news_api/staging_area/transformed_news/{formatted_date}/{formatted_hour}'
+    #filepath = f'/home/starias/africa_news_api/staging_area/transformed_news/{formatted_date}/{formatted_hour}'
+    filepath = f'/{STAGING_AREA_PATH}/transformed_news/{formatted_date}/{formatted_hour}'
 
 
     # Save the DataFrame to a CSV file with proper quoting
@@ -257,5 +260,5 @@ def transform(formatted_date=None, formatted_hour=None, filter_recents=True):
 
     logger.info("Stopped Spark session")
 
-transform(formatted_date="2024-10-09", formatted_hour="06")
+#transform(formatted_date="2024-10-09", formatted_hour="06")
 #transform()

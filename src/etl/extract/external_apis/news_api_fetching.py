@@ -13,6 +13,7 @@ from datetime import datetime
 # Add the `src` directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../..')))
 from src.logs.log import Logger
+from src.config.config import ETL_LOGS_PATH, STAGING_AREA_PATH
 
 # Add 'src' directory to the Python path
 src_path = Path(__file__).resolve().parents[2]
@@ -96,7 +97,10 @@ class NewsAPIFetcher:
         formatted_date = now.strftime('%Y-%m-%d')
         formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
 
-        log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/extract/{extractor}.txt"
+        #log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/extract/{extractor}.txt"
+        #log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/extract/{extractor}.txt"
+        log_file = f"{ETL_LOGS_PATH}/{formatted_date}/{formatted_hour}/extract/{extractor}.txt"
+
         # Ensure the directory exists; create if not
         os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
@@ -139,7 +143,8 @@ class NewsAPIFetcher:
         formatted_date = now.strftime('%Y-%m-%d')
         formatted_hour = now.strftime('%H')  # This will be '02' if the hour is 2
         
-        filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/{self.extractor}.csv'
+        #filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/{self.extractor}.csv'
+        filepath = f'{STAGING_AREA_PATH}/raw_news/{formatted_date}/{formatted_hour}/{self.extractor}.csv'
         # Ensure the directory exists; create if not
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         
@@ -216,7 +221,7 @@ class NewsAPIFetcher:
         for lang in languages[:1]:
             self.logger.info(f"\t\tFetching news for {lang} language")
             results = []
-            for query in queries[:10]:
+            for query in queries[:3]:
                 self.logger.info(f"\t\t\t\t{query} [{i}/{len(queries[:10])}]")
                 articles = self.fetch_articles(self.extractor, lang, query)
                 if articles:

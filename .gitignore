@@ -4,3 +4,4 @@ __pycache__
 *_SUCCESS
 *.crc
 data
+secrets

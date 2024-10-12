@@ -1,24 +1,27 @@
 from selenium.webdriver.common.by import By
-from urllib.parse import urlparse
-import csv
-
+from selenium.common.exceptions import NoSuchElementException
 from pathlib import Path
 import sys
-src_path = Path(__file__).resolve().parents[2]
+src_path = Path(__file__).resolve().parents[3]
+print(src_path)
 sys.path.append(str(src_path))
-from src.etl.extract.scrapers.news_scraping import NewsScraper
+from config.config import NEWS_COUNTRIES_PATH
+filename = f"{NEWS_COUNTRIES_PATH}/africa-confidential_news_countries.csv"
+
+from etl.extract.scrapers.news_scraping import NewsScraper
+
 
 # Initialize an empty list to store the rows from the CSV file
-data_from_csv = []
-filename = "/home/starias/africa_news_api/news_countries/africa-confidential_news_countries.csv"
+#data_from_csv = []
+#filename = "/home/starias/africa_news_api/news_countries/africa-confidential_news_countries.csv"
 # Open the CSV file for reading
-with open(filename, mode='r', newline='', encoding='utf-8') as file:
+"""with open(filename, mode='r', newline='', encoding='utf-8') as file:
     reader = csv.reader(file)
     # Skip the header row
     next(reader)
     # Read the remaining rows and append them to the list
     for row in reader:
-        data_from_csv.append(row)
+        data_from_csv.append(row)"""
 
 # Print the data read from the CSV file
 #print("Data read from CSV file:")

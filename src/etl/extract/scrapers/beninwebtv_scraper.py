@@ -1,13 +1,16 @@
 from selenium.webdriver.common.by import By
 from pathlib import Path
 import sys
-src_path = Path(__file__).resolve().parents[2]
+src_path = Path(__file__).resolve().parents[3]
+print(src_path)
 sys.path.append(str(src_path))
-from src.etl.extract.scrapers.news_scraping import NewsScraper
+from config.config import NEWS_COUNTRIES_PATH
+filename = f"{NEWS_COUNTRIES_PATH}/beninwebtv_news_countries.csv"
+
+from etl.extract.scrapers.news_scraping import NewsScraper
 
 # Initialize an empty list to store the rows from the CSV file
 countries_data = []
-filename = "/home/starias/africa_news_api/news_countries/beninwebtv_news_countries.csv"
 
 
 news_item_selector="#tdi_58 > *"

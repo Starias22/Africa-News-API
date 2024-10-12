@@ -1,5 +1,4 @@
-x-airflow-image: &airflow_image starias/airflow-spark
-
+x-airflow-image: &airflow_image starias/airflow-etl
 x-spark-common-properties: &spark_common_properties
   image: starias/spark-kafka
   volumes:
@@ -33,8 +32,8 @@ x-environment: &airflow_environment
   #- AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:B9#fS!4qW@p8zK*1@postgres/airflow-db
   - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
   - CHECKPOINT_DIR=${CHECKPOINT_DIR}
-  - REDIS_HOST=${REDIS_HOST}
-  - MONGO_DB_URI=${MONGO_DB_URI}
+  
+  #- MONGO_DB_URI=${MONGO_DB_URI}
   - AIRFLOW__CORE__DEFAULT_TIMEZONE=UTC
   - AIRFLOW__EMAIL__EMAIL_BACKEND=airflow.utils.email.send_email_smtp
   - AIRFLOW__SMTP__SMTP_HOST=smtp.gmail.com
@@ -42,6 +41,11 @@ x-environment: &airflow_environment
   - AIRFLOW__SMTP__SMTP_SSL=False
   - AIRFLOW__SMTP__SMTP_PORT=587
   - TRAINED_MODELS_PATH=${TRAINED_MODELS_PATH}
+  - REDIS_HOST=${REDIS_HOST}
+
+  - NEWS_COUNTRIES_PATH=${NEWS_COUNTRIES_PATH}
+  - ETL_LOGS_PATH=${ETL_LOGS_PATH}
+  - STAGING_AREA_PATH=${STAGING_AREA_PATH}
   
 services:
   postgres:
@@ -58,15 +62,158 @@ services:
       - ./data/postgres:/var/lib/postgresql/data
       - /home/starias/africa_news_api/database/init:/docker-entrypoint-initdb.d
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+    volumes:
+      - ./data/redis:/data
+    restart: always
+
+  airflow-init:
+    container_name: airflow-init
+    image: *airflow_image
+    depends_on:
+      - postgres
+    environment: *airflow_environment
+    secrets:
+    - airflow_user
+    - airflow_email
+    - airflow_password
+    - airflow_firstname
+    - airflow_lastname
+    volumes:
+      - ./scripts/airflow-scripts/airflow-init-entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    networks:
+      - backend
+    
+  
+  airflow-flower:
+        image: *airflow_image
+        container_name: airflow-flower
+        restart: always
+        depends_on:
+            - redis
+        environment: *airflow_environment
+        ports:
+            - "5555:5555"
+        command: celery flower
+        networks:
+          - backend
+  
+
+
+  airflow-webserver:
+    restart: always
+    container_name: airflow-webserver
+    image: *airflow_image
+    depends_on:
+      - airflow-init
+    environment: *airflow_environment
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow_dags:/opt/airflow/dags
+      #- ./trained_models:/opt/trained_models/
+      - ./data/logs/airflow_logs:/opt/airflow/logs
+      - ./data/logs/etl_logs:/opt/etl_logs
+      - ./data/staging_area:/opt/staging_area
+      - ./news_countries:/opt/news_countries
+      #- ./config:/opt/config
+      - ./src:/opt/src
+      - ./scripts/airflow-scripts/entrypoint.sh:/entrypoint.sh
+    command: webserver
+    secrets:
+      - smtp_user
+      - smtp_password
+      - smtp_mail_from
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    networks:
+      - backend
+  airflow-scheduler:
+    restart: always
+    container_name: airflow-scheduler 
+    image: *airflow_image
+    depends_on: 
+      - airflow-init
+    environment: *airflow_environment
+    volumes:
+      - ./airflow_dags:/opt/airflow/dags
+      - ./data/logs/airflow_logs:/opt/airflow/logs
+      - ./data/logs/etl_logs:/opt/etl_logs
+      - ./data/staging_area:/opt/staging_area
+      - ./news_countries:/opt/news_countries
+      #- ./config:/opt/config
+      - ./src:/opt/src
+      #- ./trained_models:/opt/trained_models/
+      - ./scripts/airflow-scripts/entrypoint.sh:/entrypoint.sh   
+    command: scheduler
+    networks:
+      - backend
+    secrets:
+      - smtp_user
+      - smtp_password
+      - smtp_mail_from
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    
+  airflow-worker:
+    container_name: airflow-worker
+    image: *airflow_image
+    depends_on:
+      - airflow-scheduler
+    environment: *airflow_environment
+    networks:
+      - backend
+    restart: always
+    volumes:
+      - ./airflow_dags:/opt/airflow/dags/
+      - ./data/logs/airflow_logs:/opt/airflow/logs
+      - ./data/logs/etl_logs:/opt/etl_logs
+      - ./data/staging_area:/opt/staging_area
+      - ./news_countries:/opt/news_countries
+      #- ./config/:/opt/config/
+      - ./src/:/opt/src/
+      #- ./scripts:/opt/scripts/
+      #- ./trained_models/:/opt/trained_models/
+      #- ./data/checkpoint/filtered_news/:/opt/airflow/checkpoint/filtered_news/
+      #- ./data/checkpoint/processed_news/:/opt/airflow/checkpoint/processed_news/
+      #- ./data/checkpoint/available_news/:/opt/airflow/checkpoint/available_news/
+      - ./scripts/airflow-scripts/entrypoint.sh:/entrypoint.sh
+    command: celery worker
+    secrets:
+      - smtp_user
+      - smtp_password
+      - smtp_mail_from
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+
 networks:
   backend:
     name: backend-network 
     driver: bridge
   
-secrets:
-  smtp_user:
-    file: ./secrets/smtp_user/user.txt
 
 #volumes:
   #postgres_data:
+
+secrets:
+  smtp_user:
+    file: ./secrets/smtp_user/user.txt
+  smtp_password:
+    file: ./secrets/smtp_user/password.txt
+  smtp_mail_from:
+    file: ./secrets/smtp_user/mail_from.txt
+  airflow_user:
+    file: ./secrets/airflow_user/username.txt
+  airflow_email:
+    file: ./secrets/airflow_user/email.txt
+  airflow_password:
+    file: ./secrets/airflow_user/password.txt
+  airflow_firstname:
+    file: ./secrets/airflow_user/firstname.txt
+  airflow_lastname:
+    file: ./secrets/airflow_user/lastname.txt
     
