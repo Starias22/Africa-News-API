@@ -85,7 +85,7 @@ def transform(formatted_date=None, formatted_hour=None, filter_recents=True):
 
 
     # Initialize Spark session
-    spark = SparkSession.builder.appName("LoadCSV").getOrCreate()
+    spark = SparkSession.builder.appName("TransformNews").getOrCreate()
 
     logger.info("Initialized Spark session")
 
@@ -95,7 +95,13 @@ def transform(formatted_date=None, formatted_hour=None, filter_recents=True):
 
     # Load all CSV files in the directory (use wildcard to match file names)
 
-    filepath = f'/home/starias/africa_news_api/staging_area/raw_news/{formatted_date}/{formatted_hour}/*.csv'
+    filepath = f'{STAGING_AREA_PATH}/raw_news/{formatted_date}/{formatted_hour}/*.csv'
+    #filepath = f'/{STAGING_AREA_PATH}/transformed_news/{formatted_date}/{formatted_hour}'
+
+    print(filepath)
+
+    print("**************************************++++++++++++++++")
+
     
 
 
@@ -249,11 +255,20 @@ def transform(formatted_date=None, formatted_hour=None, filter_recents=True):
     logger.info("Completed transformations")
         
     #filepath = f'/home/starias/africa_news_api/staging_area/transformed_news/{formatted_date}/{formatted_hour}'
-    filepath = f'/{STAGING_AREA_PATH}/transformed_news/{formatted_date}/{formatted_hour}'
+    filepath = f'{STAGING_AREA_PATH}/transformed_news/{formatted_date}/{formatted_hour}/output.csv'
+    #import stat
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    # Set permissions to 777 (read, write, execute for owner, group, and others)
+    #os.chmod(os.path.dirname(filepath), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+
+
+    print(filepath)
+    print(55555555555555555)
 
 
     # Save the DataFrame to a CSV file with proper quoting
-    df.write.option("quote", '"').option("escape", '"').csv(filepath, header=True, mode='overwrite')
+    #df.write.option("quote", '"').option("escape", '"').csv(filepath, header=True, mode='overwrite')
+    df.toPandas().to_csv(filepath, index=False, quotechar='"', escapechar='\\')
 
     logger.info("Written transformed news into a CSV file")
     spark.stop()
@@ -261,4 +276,6 @@ def transform(formatted_date=None, formatted_hour=None, filter_recents=True):
     logger.info("Stopped Spark session")
 
 #transform(formatted_date="2024-10-09", formatted_hour="06")
-#transform()
+
+if __name__ == "__main__":
+    transform()

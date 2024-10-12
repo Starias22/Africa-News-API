@@ -1,6 +1,6 @@
 x-airflow-image: &airflow_image starias/airflow-etl
 x-spark-common-properties: &spark_common_properties
-  image: starias/spark-kafka
+  image: bitnami/spark:3.5.3
   volumes:
    - .jobs:/opt/bitnami/spark/jobs
   networks:
@@ -61,6 +61,7 @@ services:
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
       - /home/starias/africa_news_api/database/init:/docker-entrypoint-initdb.d
+      
 
   redis:
     image: redis:latest
@@ -189,6 +190,55 @@ services:
       - smtp_password
       - smtp_mail_from
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
+  
+  spark-master:
+    <<: *spark_common_properties
+    container_name: spark-master
+    restart: always
+    ports:
+      - "9090:8080"
+      - "7077:7077"
+    #command: bin/spark-class org.apache.spark.deploy.master.Master
+    command: >
+      /bin/bash -c "
+      pip install unidecode  &&
+      bin/spark-class org.apache.spark.deploy.master.Master
+      "
+    volumes:
+    - ./data/staging_area:/opt/staging_area
+      #- ./trained_models:/opt/trained_models/
+      #- ./data/checkpoint/filtered_news/:/opt/airflow/checkpoint/filtered_news/
+      #- ./data/checkpoint/processed_news/:/opt/airflow/checkpoint/processed_news/
+      #- ./data/checkpoint/available_news/:/opt/airflow/checkpoint/available_news/
+    networks:
+      - backend
+    environment:
+      - TRAINED_MODELS_PATH=${TRAINED_MODELS_PATH}
+      
+      #- SPARK_MODE=master
+      #- SPARK_RPC_AUTHENTICATION_ENABLED=no
+      #- SPARK_RPC_ENCRYPTION_ENABLED=no
+
+  spark-worker1:
+    <<: *spark_common_properties
+    container_name: spark-worker1
+    #command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    command: >
+      /bin/bash -c "
+      pip install unidecode && 
+      bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+      "
+    depends_on:
+      - spark-master
+    environment: *spark_worker_environment
+    volumes:
+      - ./data/logs/etl_logs:/opt/etl_logs
+      - ./data/staging_area:/opt/staging_area
+      #- ./trained_models:/opt/trained_models
+      #- ./nltk_data:/opt/nltk_data/
+      #- ./data/checkpoint/filtered_news/:/opt/airflow/checkpoint/filtered_news/
+      #- ./data/checkpoint/processed_news/:/opt/airflow/checkpoint/processed_news/
+      #- ./data/checkpoint/available_news/:/opt/airflow/checkpoint/available_news/
 
 networks:
   backend:
