@@ -1,7 +1,9 @@
 from sqlalchemy import Column, Integer, String, Date, Text, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
 #app = FastAPI()
-DATABASE_URL = "postgresql+asyncpg://starias:my_password@localhost/africa_news_db"
+DATABASE_URL = "postgresql+asyncpg://starias:my_password@postgres/africa_news_db"
+#DATABASE_URL = "postgresql+asyncpg://starias:my_password@localhost/africa_news_db"
+
 
 # Define the SQLAlchemy base
 Base = declarative_base()

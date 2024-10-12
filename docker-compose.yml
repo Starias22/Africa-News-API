@@ -240,6 +240,28 @@ services:
       #- ./data/checkpoint/processed_news/:/opt/airflow/checkpoint/processed_news/
       #- ./data/checkpoint/available_news/:/opt/airflow/checkpoint/available_news/
 
+  
+  africanewsapi:
+    restart: always
+    image: starias/africanewsapi:latest
+    container_name: africanewsapi
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app  # Mount the current directory to /app in the container
+    environment:
+      #- PYTHON_ENV=development
+      - MONGO_DB_URI=${MONGO_DB_URI}
+      #- FLASK_APP=${FLASK_APP}
+      #- FLASK_ENV=development # doesn apply debug mode as expected 
+    networks:
+      - backend
+
+    #entrypoint: >
+      #flask  --app=app/app.py run --host=0.0.0.0 --port=5000 --debug
+
 networks:
   backend:
     name: backend-network 
