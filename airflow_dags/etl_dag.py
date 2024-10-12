@@ -19,16 +19,17 @@ import pendulum
 #from config.config import SRC_PATH,START_HOUR,START_DAYS_AGO,ADMIN_EMAIL
 #from src.airflow_email import success_email,failure_email
 
+START_DAYS_AGO = 1
+START_HOUR = 19
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    #'start_date': pendulum.today('UTC').subtract(days=START_DAYS_AGO).replace(hour=START_HOUR),
-    'start_date': pendulum.today('UTC'),
+    'start_date': pendulum.today('UTC').subtract(days=START_DAYS_AGO).replace(hour=START_HOUR),
     'email_on_failure': True,
     'email_on_success': True,
     'email_on_retry': True,
     'retries': 3,
-    'retry_delay': timedelta(minutes=15),
+    'retry_delay': timedelta(minutes=10),
     #'email':ADMIN_EMAIL
 }
 
@@ -37,7 +38,7 @@ dag = DAG(
     'etl_dag',
     default_args=default_args,
     description='An hourly workflow for fetching news articles from multiples sources, transforming news and loading them into a POstgreSQL database',
-    schedule=timedelta(days=1),
+    schedule=timedelta(hours=1),
     catchup = False,
 )
 
