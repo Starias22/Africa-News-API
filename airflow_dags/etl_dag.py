@@ -10,21 +10,11 @@ from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOpe
 # Add 'src' directory to the Python path
 src_path = Path(__file__).resolve().parents[2]
 sys.path.append(str(src_path))
-from src.config.config import SRC_PATH, SPARK_CONNECTION_ID, SPARK_KAFKA_PACKAGES
-from src.etl.transform.transform import transform
-#a=5
+from src.config.config import SRC_PATH, SPARK_CONNECTION_ID
+
 from src.etl.load.load import load
 
 import pendulum
-# Add 'src' directory to the Python path
-#src_path = Path(__file__).resolve().parents[2]
-#sys.path.append(str(src_path))
-
-#from src.etl.extract.scrapers import beninwebtv_scraper, jeuneafrique_scaper, africa_confidential_scraper
-#from src.etl.extract.external_apis import google_news_fetcher, newsapi_fetcher
-
-
-
 
 #from config.config import SRC_PATH,START_HOUR,START_DAYS_AGO,ADMIN_EMAIL
 #from src.airflow_email import success_email,failure_email
@@ -37,7 +27,7 @@ default_args = {
     'email_on_failure': True,
     'email_on_success': True,
     'email_on_retry': True,
-    'retries': 0,
+    'retries': 3,
     'retry_delay': timedelta(minutes=15),
     #'email':ADMIN_EMAIL
 }
@@ -59,11 +49,6 @@ extract_task = BashOperator(
     #on_success_callback = success_email,
     #on_failure_callback = failure_email,
 )
-"""transform_task = PythonOperator(
-   task_id='transform',
-    python_callable=transform,
-    dag=dag,
-)"""
 
 transform_task = SparkSubmitOperator(
     task_id='transform',
