@@ -43,32 +43,259 @@ The Africa-News-API is a personal project designed to aggregate news from variou
 *Detailed architecture diagram and explanation here (if available).*-->
 
 ## Database Design
-The database design for the Africa-News-API is structured to efficiently store and retrieve news articles. Below are the key tables and their relationships:
+The database design for the Africa-News-API is structured to efficiently store and retrieve news articles. It organizes data into well-defined tables to support rapid querying and scalability. Below is an Entity-Relationship (ER) diagram (ERD) that outlines the structure of the database, designed using **PgModeler**.
 
 ![Database Design](./database/design/design.png)
 
+
+The diagram illustrates the relationships between these entities, such as how each article is linked to a media source and categorized under specific tags.
+
+### Model Files:
+- **Database Model**: The ER model file generated using PgModeler can be found [here](./database/design/design.dbm) in the repository.
+- **SQL File**: [Here](./database/init/utils/init_script.sql) is the SQL file used to create the database schema. It is generated in PgModeler.
+
+This design ensures the Africa-News-API can scale as the volume of news articles grows while maintaining quick access to information through efficient database queries.
+
+
+## API endpoints
+
+### 1. **Root Endpoint**
+
+- **Endpoint**: `/`
+- **Method**: `GET`
+- **Description**: Returns a welcome message.
+- **Response**: 
+    ```json
+    "Welcome to Africa News API"
+    ```
+
+### 2. **Get all Languages**
+
+- **Endpoint**: `/languages`
+- **Method**: `GET`
+- **Description**: Retrieve a list of all languages available in the database.
+- **Response**: A list of languages in the following format:
+
+    ```json
+    [
+    {
+        "id": 1,
+        "name": "english",
+        "code": "en"
+    },
+    {
+        "id": 2,
+        "name": "french",
+        "code": "fr"
+    }
+    ]
+    ```
+
+---
+
+### 3. **Get all Countries**
+
+- **Endpoint**: `/countries`
+- **Method**: `GET`
+- **Description**: Retrieve a list of all countries available in the database.
+- **Response**: A list of countries in the following format:
+
+    ```json
+        [
+    {
+        "id": 1,
+        "name": "algeria",
+        "code": "DZ"
+    },
+    {
+        "id": 2,
+        "name": "angola",
+        "code": "AO"
+    },
+    {
+        "id": 3,
+        "name": "benin",
+        "code": "BJ"
+    },
+    
+    
+    {
+        "id": 54,
+        "name": "zambia",
+        "code": "ZM"
+    },
+    {
+        "id": 55,
+        "name": "zimbabwe",
+        "code": "ZW"
+    },
+    {
+        "id": 56,
+        "name": null,
+        "code": "ZZ"
+    }
+    ]
+    ```
+
+---
+
+### 4. **Get all Categories**
+
+- **Endpoint**: `/categories`
+- **Method**: `GET`
+- **Description**: Retrieve a list of all categories available in the database.
+- **Response**: A list of categories in the following format:
+
+    ```json
+        [
+    {
+        "id": 1,
+        "name": "analysis-interpretation"
+    },
+    {
+        "id": 2,
+        "name": "business-economy-finance"
+    },
+    {
+        "id": 3,
+        "name": "celebrity"
+    },
+
+    {
+        "id": 18,
+        "name": "music"
+    },
+    {
+        "id": 19,
+        "name": "council of ministers"
+    },
+    {
+        "id": 20,
+        "name": null
+    }
+    ]
+    ```
+
+---
+
+### 5. **Get all Authors**
+
+- **Endpoint**: `/authors`
+- **Method**: `GET`
+- **Description**: Retrieve a list of all authors available in the database.
+- **Response**: A list of authors in the following format:
+
+    ```json
+    [
+      {
+    "id": 1,
+    "name": null,
+    "URL": null
+  },
+  {
+    "id": 2,
+    "name": "Romaric Déguénon",
+    "URL": "https://beninwebtv.com/author/romaric/"
+  },
+  {
+    "id": 3,
+    "name": "Leandro Zomassi",
+    "URL": "https://beninwebtv.com/author/libence/"
+  },
+  {
+    "id": 4,
+    "name": "Kevin Aka",
+    "URL": "https://beninwebtv.com/author/kevin/"
+  },
+  {
+    "id": 5,
+    "name": "Aya N'goran",
+    "URL": "https://beninwebtv.com/author/aya/"
+  },
+  {
+    "id": 6,
+    "name": "Ange Banouwin",
+    "URL": "https://beninwebtv.com/author/banouwin/"
+  },
+  {
+    "id": 7,
+    "name": "Angèle M. ADANLE",
+    "URL": "https://beninwebtv.com/author/angele/"
+  },
+  {
+    "id": 8,
+    "name": "Edouard Djogbénou",
+    "URL": "https://beninwebtv.com/author/edouard/"
+  }
+    ]
+    ```
+
+---
+
+### 6. **Get all Articles**
+
+- **Endpoint**: `/articles`
+- **Method**: `GET`
+- **Description**: Retrieve a list of articles based on various filters.
+- **Query Parameters**: They are all optional
+  - `country`: Filter articles by country (either country name or country code).
+  - `lang`: Filter articles by language (either language name or language code).
+  - `category`: Filter articles by category name.
+  - `author`: Filter articles by author name.
+  - `source`: Filter articles by source name.
+  - `start_date`: Start date for filtering by publication date (in `YYYY-MM-DD` format).
+  - `end_date`: End date for filtering by publication date (in `YYYY-MM-DD` format).
+  - `order_by`: Field to order the results by (default is `publication_date`).
+  - `order`: Sort order, either `asc` or `desc` (default is `desc`).
+  - `limit`: Maximum number of articles to return (default is 10, maximum is 100).
+  - `offset`: Number of articles to skip for pagination (default is 0).
+
+- **Response**: A list of articles in the following format:
+
+    ```json
+    [
+      {
+    "id": 78,
+    "author": {
+      "id": 1,
+      "name": null,
+      "url": null
+    },
+    "category": {
+      "id": 20,
+      "name": null
+    },
+    "source": {
+      "id": 18,
+      "name": "The Heritage Times"
+    },
+    "country": {
+      "id": 3,
+      "name": "benin",
+      "code": "BJ"
+    },
+    "language": {
+      "id": 1,
+      "name": "english",
+      "code": "en"
+    },
+    "publication_date": "None",
+    "title": "Nigeria: NDDC Begins Repairs Of Warri-Benin Sections Of East West Road",
+    "description": "The Niger Delta Development Commission, NDDC, has commenced emergency repairs of the failed sections of the East West-Road between Warri in Delta State and...",
+    "img_url": "data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+    "url": "https://www.theheritagetimes.com/nigeria-nddc-begins-repairs-of-warri-benin-sections-of-east-west-road/&ved=2ahUKEwjz27HNz4uJAxXv38kDHc4rNBkQxfQBegQICRAC&usg=AOvVaw1scbnsdGmhNrz-KJyz9Zrv",
+    "content_preview": null,
+    "content": null
+  }
+    ]
+    ```
+
+---
+
+
+
+
 <!-- ### Tables
-
-1. **articles**
-   - **id**: Serial primary key.
-   - **title**: String, the title of the news article.
-   - **content**: Text, the body of the article.
-   - **source**: String, the media source of the article.
-   - **published_at**: Timestamp, the publication date of the article.
-   - **url**: String, the URL of the article.
-   - **created_at**: Timestamp, the date and time the article was created in the database.
-   - **updated_at**: Timestamp, the date and time the article was last updated.
-
-2. **sources**
-   - **id**: Serial primary key.
-   - **name**: String, the name of the news source.
-   - **api_url**: String, the API endpoint for retrieving articles from this source (if applicable).
-   - **created_at**: Timestamp, the date and time the source was added to the database.
-
-### Relationships
-- Each article can be associated with one source, establishing a one-to-many relationship between `sources` and `articles`.
-
-
 ## Installation
 ### Prerequisites
 *List any prerequisites needed before installation (e.g., Docker, Python, etc.).*
