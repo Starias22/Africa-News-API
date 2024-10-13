@@ -255,7 +255,7 @@ This design ensures the Africa-News-API can scale as the volume of news articles
     ```json
     [
       {
-    "id": 78,
+    "id": 31,
     "author": {
       "id": 1,
       "name": null,
@@ -266,13 +266,13 @@ This design ensures the Africa-News-API can scale as the volume of news articles
       "name": null
     },
     "source": {
-      "id": 18,
-      "name": "The Heritage Times"
+      "id": 9,
+      "name": "Nation"
     },
     "country": {
-      "id": 3,
-      "name": "benin",
-      "code": "BJ"
+      "id": 34,
+      "name": "morocco",
+      "code": "MA"
     },
     "language": {
       "id": 1,
@@ -280,10 +280,10 @@ This design ensures the Africa-News-API can scale as the volume of news articles
       "code": "en"
     },
     "publication_date": "None",
-    "title": "Nigeria: NDDC Begins Repairs Of Warri-Benin Sections Of East West Road",
-    "description": "The Niger Delta Development Commission, NDDC, has commenced emergency repairs of the failed sections of the East West-Road between Warri in Delta State and...",
+    "title": "Western Sahara issue threatens Morocco’s business deals",
+    "description": "The Western Sahara region was initially a colony of Spain but after the colonialists departed, it was administered by Mauritania and Morocco before Morocco...",
     "img_url": "data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
-    "url": "https://www.theheritagetimes.com/nigeria-nddc-begins-repairs-of-warri-benin-sections-of-east-west-road/&ved=2ahUKEwjz27HNz4uJAxXv38kDHc4rNBkQxfQBegQICRAC&usg=AOvVaw1scbnsdGmhNrz-KJyz9Zrv",
+    "url": "https://nation.africa/kenya/news/africa/western-sahara-issue-threatens-morocco-s-business-deals-4793176&ved=2ahUKEwjp2PLOz4uJAxUu48kDHfy5OLoQxfQBegQIBxAC&usg=AOvVaw3Ia4CCqqIvc0_oR66GvXxv",
     "content_preview": null,
     "content": null
   }
