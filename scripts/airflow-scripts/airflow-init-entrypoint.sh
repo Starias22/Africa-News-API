@@ -33,5 +33,17 @@ airflow users create \
     --email "$AIRFLOW_EMAIL" \
     --password "$AIRFLOW_PASSWORD"
 
+# Check if the spark connection exists
+if ! airflow connections get "spark-connection" > /dev/null 2>&1; then
+    # If the connection doesn't exist, add it
+    airflow connections add "spark-connection" \
+        --conn-type "spark" \
+        --conn-host "spark://spark-master:7077" \
+        --conn-extra '{"queue": "default", "deploy-mode": "client"}'
+    echo "Spark connection added successfully."
+else
+    echo "Spark connection already exists."
+fi
+
 # Continue with other commands (like starting the webserver)
 #exec "$@"
