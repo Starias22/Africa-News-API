@@ -1,0 +1,108 @@
+                         GNU GENERAL PUBLIC LICENSE
+                           Version 3, 29 June 2007
+
+Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+Everyone is permitted to copy and distribute verbatim copies
+of this license document, but changing it is not allowed.
+
+                         Preamble
+
+The GNU General Public License is a free, copyleft license for software
+and other kinds of works. This license is intended to guarantee your
+freedom to share and change all versions of a program—to make sure it
+remains free software for all its users. When we speak of free software,
+we are referring to freedom, not price. Our General Public Licenses are
+designed to make sure that you have the freedom to distribute copies of
+free software (and charge for this service if you wish), that you
+receive source code or can get it if you want it, that you can change
+the software and use pieces of it in new free programs, and that you are
+informed that you can do these things.
+
+To protect your rights, we need to make restrictions that forbid anyone
+to deny you these rights or to ask you to surrender the rights. These
+restrictions translate to certain responsibilities for you if you
+distribute copies of the software, or if you modify it.
+
+For example, if you distribute copies of such a program, whether
+gratis or for a fee, you must pass on to the recipients the same
+rights that you received. You must make sure that they, too, receive or
+can get the source code. And you must show them these terms so they
+know their rights.
+
+Developers that use the GNU GPL protect your rights with two steps:
+(1) assert copyright on the software, and (2) offer you this License
+giving you legal permission to copy, distribute and/or modify it.
+
+For the developers' and authors' sake, the GPL explains that
+there is no warranty for this free software. For both users' and
+authors' sake, the GPL requires that modified versions be marked as
+changed and be licensed as broadly as the original software.
+
+                         TERMS AND CONDITIONS
+
+0. Definitions.
+
+   This License refers to version 3 of the GNU General Public License.
+   The "Program" refers to any copyrightable work licensed under this
+   License. Each licensee is addressed as "you". "Licensor" refers to
+   the individual, individuals, or organization that distributes the
+   Program under this License.
+
+   "Source code" for a work means the preferred form of the work for
+   making modifications to it. "Object code" means any non-source form
+   of a work.
+
+   "You" means the licensee, and "your" has a corresponding meaning.
+
+1. Source Code.
+
+   The Licensor must make the source code available to you. The
+   Licensor must also make it clear that you can request the source
+   code if it is not included in the distribution.
+
+2. Basic Permissions.
+
+   You are granted the rights to use, modify, and distribute copies of
+   the Program. You may also charge a fee for these copies.
+
+3. Copyleft.
+
+   You must keep the same license if you modify the program and
+   distribute it. This is known as the "copyleft" requirement.
+
+4. License for Your Modifications.
+
+   If you modify the program and distribute it, you must include a
+   prominent notice stating that you have changed the Program.
+
+5. No Warranty.
+
+   There is no warranty for the program. If it doesn't work, you get no
+   compensation or warranty.
+
+6. Endorsement.
+
+   This License does not grant you permission to use the trade names,
+   trademarks, service marks, or other identifiers of the Licensor.
+
+7. Acceptance.
+
+   You accept this License if you distribute or modify the program.
+
+8. Future Versions.
+
+   You may choose to follow the terms and conditions of a later version
+   of this License or the original version.
+
+9. Translation.
+
+   Translation of this License is permitted as long as you include a
+   translation of the license that makes it clear that the license is
+   an adaptation of the GNU GPL.
+
+10. GNU GPL.
+
+   This is the GNU General Public License. You can find the full text
+   at https://www.gnu.org/licenses/gpl-3.0.en.html.
+
+                  END OF TERMS AND CONDITIONS
