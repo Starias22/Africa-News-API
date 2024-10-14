@@ -204,26 +204,6 @@ This design ensures the Africa-News-API can scale as the volume of news articles
     "URL": "https://beninwebtv.com/author/libence/"
   },
   {
-    "id": 4,
-    "name": "Kevin Aka",
-    "URL": "https://beninwebtv.com/author/kevin/"
-  },
-  {
-    "id": 5,
-    "name": "Aya N'goran",
-    "URL": "https://beninwebtv.com/author/aya/"
-  },
-  {
-    "id": 6,
-    "name": "Ange Banouwin",
-    "URL": "https://beninwebtv.com/author/banouwin/"
-  },
-  {
-    "id": 7,
-    "name": "Angèle M. ADANLE",
-    "URL": "https://beninwebtv.com/author/angele/"
-  },
-  {
     "id": 8,
     "name": "Edouard Djogbénou",
     "URL": "https://beninwebtv.com/author/edouard/"
