@@ -40,6 +40,15 @@ The Africa-News-API is a personal project designed to aggregate news from variou
 - **Docker Compose**: For defining and managing multi-container Docker applications, simplifying the setup and orchestration of services.
 - **Bash**: For scripting tasks related to database initialization, Airflow user and connection initialization, etc.
 
+## Skills
+- **Web Scraping**: Extracted data from dynamic web pages using automation.
+- **API Design**: Created efficient, scalable REST APIs for data access.
+- **ETL Pipelines**: Automated extraction, transformation, and loading of data.
+- **Data Processing**: Performed large-scale data transformation and cleansing.
+- **Database Management**: Designed optimized relational databases for storing large datasets.
+- **Task Automation**: Developed scripts for system management and task scheduling.
+- **Containerization**: Ensured consistency in multi-service deployments using containers.
+
 <!--## Architecture
 *Detailed architecture diagram and explanation here (if available).*-->
 
