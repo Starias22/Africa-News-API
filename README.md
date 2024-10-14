@@ -52,7 +52,7 @@ The diagram illustrates the relationships between these entities, such as how ea
 
 ### Model Files:
 - **Database Model**: The ER model file generated using PgModeler can be found [here](./database/design/design.dbm) in the repository.
-- **SQL File**: [Here](./database/init/utils/init_script.sql) is the SQL file used to create the database schema. It is generated in PgModeler.
+- **SQL File**: [Here](./database/init/utils/create_tables.sql) is the SQL file used to create the database schema. It is generated in PgModeler.
 
 This design ensures the Africa-News-API can scale as the volume of news articles grows while maintaining quick access to information through efficient database queries.
 
