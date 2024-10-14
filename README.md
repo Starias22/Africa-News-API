@@ -318,23 +318,25 @@ The ETL (Extract, Transform, Load) process in this project is implemented using 
   - These scripts are located in the [etl/extract/scrapers/](./src/etl/extract/scrapers/) and [etl/extract/external_apis/](./src/etl/extract/external_apis/).
 
 2. **Transform**:
-   - The transformation step utilizes the `SparkSubmitOperator` to run a Spark application, specified in the [etl/transform/transform.py](./src/etl/transform/transform.py) file. 
+
+   The transformation step utilizes the `SparkSubmitOperator` to run a Spark application, specified in the [etl/transform/transform.py](./src/etl/transform/transform.py) file. 
   This application:
-    - Retrieves the extracted news from the staging area.
-    - Drops duplicate records to ensure uniqueness in the data.
-    - Converts country and category names to lowercase for standardization.
-    - Removes accents from country and category names.
-    - Translates country names from French to English using a predefined mapping.
-    - Filters out invalid country names like "africa," "monde," or "moyen-orient."
-    - Standardizes the category names by mapping them to predefined, relevant labels such as "sport," "business-economy-finance," "politics," etc.
-    - Performs the following transformation to format the publication date:
-      - Splits the publication date into day, month, and year components for further manipulation.
-      - Transforms French month names into corresponding numerical values.
-      - Reconstructs and formats the publication date, converting it to a consistent yyyy-MM-dd format.
-    - Writes the transformed data back into the staging area as a CSV file for loading.
+      - Retrieves the extracted news from the staging area.
+      - Drops duplicate records to ensure uniqueness in the data.
+      - Converts country and category names to lowercase for standardization.
+      - Removes accents from country and category names.
+      - Translates country names from French to English using a predefined mapping.
+      - Filters out invalid country names like "africa," "monde," or "moyen-orient."
+      - Standardizes the category names by mapping them to predefined, relevant labels such as "sport," "business-economy-finance," "politics," etc.
+      - Performs the following transformation to format the publication date:
+        - Splits the publication date into day, month, and year components for further manipulation.
+        - Transforms French month names into corresponding numerical values.
+        - Reconstructs and formats the publication date, converting it to a consistent yyyy-MM-dd format.
+      - Writes the transformed data back into the staging area as a CSV file for loading.
 
 3. **Load**:
-   - The loading task is handled by a `PythonOperator`, which calls the `load` function defined in [src/etl/load/load.py](./src/etl/load/load.py). This step:
+
+   The loading task is handled by a `PythonOperator`, which calls the `load` function defined in [src/etl/load/load.py](./src/etl/load/load.py). This step:
       - Establishes a connection to a PostgreSQL database using SQLAlchemy.
       - Reads the transformed CSV files from the staging area.
       - For each article in the CSV files, it inserts the data into the relevant database tables by:
