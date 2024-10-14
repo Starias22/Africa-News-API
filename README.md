@@ -14,6 +14,7 @@
 9. [ETL Pipeline](#etl-pipeline)
 10. [Contributing](#contributing)
 11. [License](#license)
+12. [Contact Information](#contact-information)
 
 ## Summary
 The Africa-News-API is a personal project designed to aggregate news from various African media platforms and existing news APIs into a centralized database. News articles are retrieved, transformed, and stored hourly, making them accessible to users through dedicated API endpoints, facilitating easy access to news events across the continent.
@@ -434,3 +435,12 @@ This project is licensed under the **GNU General Public License v3.0**. You are 
 - **No Warranty**: This software is provided without any warranties, whether expressed or implied.
 
 For more details, please see the full license in the [LICENSE](./LICENSE) file or visit the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) for more information.
+
+## Contact Information
+
+For questions or issues, please contact:
+
+- Name: Gbètoho Ezéchiel ADEDE
+- Email: Gbetoho.ADEDE@um6p.ma
+- GitHub: [Starias22](https://github.com/Starias22)
+- LinkedIn: [Gbètoho Ezéchiel ADEDE](https://www.linkedin.com/in/Starias22)
