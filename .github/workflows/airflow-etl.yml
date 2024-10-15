@@ -1,4 +1,4 @@
-name: Build and Push airflow-spark Docker Image on DockerHub
+name: Build and Push airflow-etl Docker Image on DockerHub
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - main
       - master
     paths:
-      - Dockerfile-airflow-spark
-      - .github/workflows/airflow-spark.yml
+      - docker/Dockerfile-etl
+      - .github/workflows/airflow-etl.yml
 
 jobs:
   docker:
@@ -31,5 +31,4 @@ jobs:
         with:
           push: true
           tags: starias/airflow-etl:latest
-          file: docker/Dockerfile-airflow-spark
-          
+          file: docker/Dockerfile-airflow-etl
