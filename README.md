@@ -49,8 +49,12 @@ The Africa-News-API is a personal project designed to aggregate news from variou
 - **Task Automation**: Developed scripts for system management and task scheduling.
 - **Containerization**: Ensured consistency in multi-service deployments using containers.
 
-<!--## Architecture
-*Detailed architecture diagram and explanation here (if available).*-->
+## Architecture
+
+The figure bellow shows an overview of the architecture of the system.
+
+![Africa News API Architecture](./resources/architecture.jpg)
+
 
 ## Database Design
 The database design for the Africa-News-API is structured to efficiently store and retrieve news articles. It organizes data into well-defined tables to support rapid querying and scalability. Below is an Entity-Relationship (ER) diagram (ERD) that outlines the structure of the database, **africa_news_db**, designed using **PgModeler**.
