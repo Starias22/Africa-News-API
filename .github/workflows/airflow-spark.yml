@@ -32,3 +32,4 @@ jobs:
           push: true
           tags: starias/airflow-etl:latest
           file: docker/Dockerfile-airflow-spark
+          
