@@ -7,7 +7,7 @@ on:
       - master 
     paths:
       - Dockerfile-airflow-spark
-      - .github/workflows/main.yml
+      - .github/workflows/airflow-spark.yml
 
 jobs:
   docker:
