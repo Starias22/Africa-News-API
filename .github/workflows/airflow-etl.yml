@@ -31,4 +31,4 @@ jobs:
         with:
           push: true
           tags: starias/airflow-etl:latest
-          file: docker/Dockerfile-airflow-etl
+          file: docker/Dockerfile-etl
