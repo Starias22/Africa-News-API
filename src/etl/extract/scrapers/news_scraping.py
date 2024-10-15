@@ -8,6 +8,7 @@ import os
 import sys
 from datetime import datetime
 from selenium.webdriver.chrome.options import Options as ChromeOptions
+from fake_useragent import UserAgent
 # Add the `src` directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../..')))
 from src.logs.log import Logger
@@ -37,7 +38,6 @@ class NewsScraper:
 
         log_file = f"{ETL_LOGS_PATH}/{formatted_date}/{formatted_hour}/extract/{extractor}.txt"
         print(log_file)
-        #log_file = f"/home/starias/africa_news_api/logs/etl_logs/{formatted_date}/{formatted_hour}/extract/{extractor}.txt"
 
         # Ensure the directory exists; create if not
         os.makedirs(os.path.dirname(log_file), exist_ok=True)
@@ -64,23 +64,26 @@ class NewsScraper:
         # Write the header to the file
         self.writer.writeheader()
         self.logger.info(f"Written header to CSV file: {filepath}")
-        self.countries_data= self.get_countries_data(countries_csv_file)[:3]
+        self.countries_data= self.get_countries_data(countries_csv_file)[:5]
 
         self.logger.info(f"Got countries data (names and URLs) from countries CSV file:{countries_csv_file}")
 
         # Set up Chrome options for headless mode
         chrome_options = ChromeOptions()
-        #chrome_options.add_argument("--headless")  # Run in headless mode
-        #chrome_options.add_argument("--no-sandbox")
-        #chrome_options.add_argument("--disable-dev-shm-usage")
-        #chrome_options.add_argument("--no-startup-window")
-
+       
         # Set Chrome options
         #chrome_options = Options()
         chrome_options.add_argument("--headless")  # Ensure Chrome runs in headless mode
         chrome_options.add_argument("--no-sandbox")  # Bypass OS security model
         chrome_options.add_argument("--disable-dev-shm-usage")  # Overcome limited resource problems
         chrome_options.add_argument("--disable-gpu")  # Disable GPU for headless environments
+
+
+        ua = UserAgent()
+        
+        chrome_options.add_argument(f'user-agent={ua.random}')
+        
+        #driver = webdriver.Chrome(options=options)
 
         # Initialize the WebDriver with the options
         self.driver = webdriver.Chrome(options=chrome_options)
@@ -128,6 +131,11 @@ class NewsScraper:
         except Exception as e:
             print("Error while waiting for news items:", e)
             self.logger.error(f"Error while waiting for news items: {e}")
+            # Print the full traceback of the exception
+            import traceback
+            error_message = traceback.format_exc()
+            print("Error while waiting for news items:", error_message)
+            print(f"Error while waiting for news items: {error_message}")
             
         return news_items
 
