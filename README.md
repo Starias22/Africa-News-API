@@ -12,15 +12,17 @@
 7. [Usage](#usage)
 8. [API Endpoints](#api-endpoints)
 9. [ETL Pipeline](#etl-pipeline)
-10. [Contributing](#contributing)
-11. [License](#license)
-12. [Contact Information](#contact-information)
+10. [Future Work](#future-work)
+11. [Contributing](#contributing)
+12. [License](#license)
+13. [Contact Information](#contact-information)
 
 ## Summary
 The Africa-News-API is a personal project designed to aggregate news from various African media platforms and existing news APIs into a centralized database. News articles are retrieved, transformed, and stored hourly, making them accessible to users through dedicated API endpoints, facilitating easy access to news events across the continent.
 
 ## Features
 - Aggregates news from multiple African media websites and news APIs.
+- Utilizes fake user agents to avoid blocking and enhance the success rate of web scraping operations.
 - Efficiently processes large volumes of news articles using Apache Spark.
 - Stores news articles in a PostgreSQL database.
 - Provides a FastAPI-based API for accessing news data.
@@ -287,13 +289,13 @@ This design ensures the Africa-News-API can scale as the volume of news articles
 ---
 
 
-### ETL Pipeline
+## ETL Pipeline
 
 The ETL (Extract, Transform, Load) process in this project is implemented using Apache Airflow, facilitating the hourly workflow for fetching news articles from multiple sources, transforming the data, and loading it into a PostgreSQL database. The following figures shows the ETL DAG.
 
 ![ETL DAG](./resources/etl_dag.png)
 
-#### Components of the ETL Process
+### Components of the ETL Process
 
 1. **Extract**:
    - The extraction task is executed using a `BashOperator`, which runs multiple Python scripts **concurrently** to retrieve news articles from various sources of two types
@@ -303,6 +305,7 @@ The ETL (Extract, Transform, Load) process in this project is implemented using 
                 - [Benin Web TV](https://beninwebtv.com/)
                 - [Jeune Afrique](https://www.jeuneafrique.com/)
                 - [Africa Confidential](https://africa-confidential.com/)
+            - A **fake user agents mechanism** was used to simulate different browsers and avoid blocking by web servers, increasing the success rate of the scraping process.
         - **External News APIs**
             - News are fetched from external news APIs by specifying african countries as query keywords.
             - The following external news APIs were used:
@@ -310,6 +313,7 @@ The ETL (Extract, Transform, Load) process in this project is implemented using 
                 - [News API](https://newsapi.org/)
   - The news retrieved are stored in a staging area in a seperate CSV file file, for each news source.
   - These scripts are located in the [etl/extract/scrapers/](./src/etl/extract/scrapers/) and [etl/extract/external_apis/](./src/etl/extract/external_apis/).
+  
 
 2. **Transform**:
 
@@ -339,9 +343,24 @@ The ETL (Extract, Transform, Load) process in this project is implemented using 
         - Checking if the article already exists in the database based on key attributes such as author, category, country, language, source, and publication date.
       - If the article does not already exist, a new entry is inserted into the database with all associated details like title, description, publication date, and content.
       
+### Staging Area
 
+Staging Area
+The staging area is a temporary storage location for raw and transformed news data before it is loaded into the database. It follows a structured filesystem, organizing the data by extraction date, hour and source. Raw data is stored here immediately after extraction, while transformed data is saved before  the loading process, ensuring a clear separation between different stages of the ETL workflow. The file format is CSV.
 
-#### Workflow Scheduling
+Bellow is an overview of the structure of the staging area.
+
+![Staging Area Structure](./resources/staging_area.png)
+
+### Logs
+
+The logging system tracks all key operations throughout the ETL process. Logs are organized by date and hour, and process type(Extract/Transform/Load), capturing detailed information such as extraction progress, errors, and any important events that occur during the data pipeline. This ensures transparency and helps with debugging and monitoring, making it easier to trace issues and maintain a reliable workflow.
+
+Here is what the log files looks like.
+
+![Logs](./resources/logs.png)
+
+### Workflow Scheduling
 
 - The entire ETL process is scheduled to run every hour, ensuring that the database is updated with the latest news articles.
 
@@ -356,15 +375,14 @@ The ETL (Extract, Transform, Load) process in this project is implemented using 
 *Step-by-step guide to set up the project environment, including commands for Docker and installation of dependencies.*
 
 ## Usage
-*Instructions on how to run the project and any configuration options.*
+*Instructions on how to run the project and any configuration options.*  -->
 
+## Future Work
 
+- **Kubernetes Integration**: Moving the current containerized deployment to **Kubernetes** for improved scalability, fault tolerance, and efficient resource management.
+- **Enhanced Proxy Rotation**: Implementing a **proxy rotation** system to further reduce the chances of being blocked during web scraping and ensure continuous access to sources.
+- **Expanding News Sources**: Adding support for more news platforms, with a focus on sources in **African local languages**, to provide a richer and more diverse dataset.
 
-## Contributing
-*Guidelines for contributing to the project.*
-
-## License
-*Specify the license under which the project is distributed.*-->
 
 ## Contributing
 
@@ -437,3 +455,5 @@ For questions or issues, please contact:
 - Email: Gbetoho.ADEDE@um6p.ma
 - GitHub: [Starias22](https://github.com/Starias22)
 - LinkedIn: [Gbètoho Ezéchiel ADEDE](https://www.linkedin.com/in/Starias22)
+
+![alt text](image.png)
