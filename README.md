@@ -456,4 +456,4 @@ For questions or issues, please contact:
 - GitHub: [Starias22](https://github.com/Starias22)
 - LinkedIn: [Gbètoho Ezéchiel ADEDE](https://www.linkedin.com/in/Starias22)
 
-![alt text](image.png)
+
